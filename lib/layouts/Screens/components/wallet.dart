@@ -1,6 +1,7 @@
 // import 'dart:html';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/Screens/components/wallet_icons.dart';
 
@@ -12,9 +13,25 @@ class Wallet extends StatefulWidget {
 }
 
 class _WalletState extends State<Wallet> {
-  
+  String? course;
+  String? time;
+  SharedPreferences? sharedPreferences;
+  Future<void> getData()async{
+    sharedPreferences=await SharedPreferences.getInstance();
+    setState(() {
+      course=sharedPreferences!.getString("h_course");
+    time=sharedPreferences!.getString("h_time");
+    });
+    
+  }
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    getData();
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {   
+
      Color appbar=appColr;
      ThemeData deco=ThemeData.dark();
      Color deco2=Colors.white;
@@ -44,19 +61,9 @@ class _WalletState extends State<Wallet> {
                 // physics: const ClampingScrollPhysics(),
                 child: Column(
                   children: [
+               
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 7),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: deco2,
-                        ),
-                        height: 75,
-                        width: 125,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 0),
+                      padding: const EdgeInsets.only(bottom: 0,top: 5),
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
@@ -81,11 +88,13 @@ class _WalletState extends State<Wallet> {
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
+                                    SizedBox(width: 15,),
+                                    Text("expired",style: TextStyle(color: Colors.red,fontSize: 10),)
                                   ],
                                 ),
                              
-                                const Text('CP 316            '),
-                                const Text('08:00 AM         '),
+                               course==null ?const Text("No data"): Text('${course}'),
+                                time==null? const Text("No Data"):  Text('$time'),
                               ]),
                         ),
                       ),

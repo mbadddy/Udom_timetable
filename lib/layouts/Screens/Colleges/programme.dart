@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 // import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,7 +9,6 @@ import 'package:udom_timetable/layouts/Screens/Colleges/Semister/Semister.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/timetable.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/programe_card_detail.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
-
 class Programme extends StatefulWidget {
   String programe;
   String college;
@@ -39,6 +39,7 @@ class _ProgrammeState extends State<Programme> {
 
  SharedPreferences? sharedPreferences;
  Future setAllDaysColor(String college,String programe) async{
+
       sharedPreferences=await SharedPreferences.getInstance();
       sharedPreferences!.setString("a_coll", college);
       sharedPreferences!.setString("a_prog", programe);
@@ -46,6 +47,7 @@ class _ProgrammeState extends State<Programme> {
      
  }
  Future checkTruth(bool truth)async{
+ 
   sharedPreferences=await SharedPreferences.getInstance();
      sharedPreferences!.setBool("truth",truth);
  }
@@ -68,6 +70,7 @@ Future<void> getAllDayTableData() async{
   
 }
 Future<void> removeAllDayTableData() async{
+
   sharedPreferences=await SharedPreferences.getInstance();
   sharedPreferences!.remove("a_prog");
   sharedPreferences!.remove("a_year");
@@ -80,8 +83,11 @@ Future cclearData() async{
   sharedPreferences=await SharedPreferences.getInstance();
   sharedPreferences!.clear();
 }
+ Box<List<String>>? all_timetable;
 @override
   void initState() {
+      all_timetable=Hive.box<List<String>>("timetable");
+    // all_timetable!.deleteAll(all_timetable!.keys);
     // cclearData();
     getAllDayTableData();
     super.initState();
@@ -116,7 +122,7 @@ Future cclearData() async{
           all_days_color=Colors.white;
         });
       }
- getAllDayTableData();
+//  getAllDayTableData();
    print("truth is "+all_days.toString());
    setState(() {
    
@@ -187,7 +193,7 @@ Future cclearData() async{
                removeAllDayTableData();
              setState(() {
                weekly=false; 
-               
+                getAllDayTableData();
               });
                ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Storage Optimized for "+prog!+" press again to move in "+widget.programe+" year "+yer!+" semister "+sem!)));
@@ -200,13 +206,14 @@ Future cclearData() async{
               checkTruth(all_days!);
               setState(() {
                weekly=true; 
-              
+               getAllDayTableData();
               });
                
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(widget.college+" "+widget.programe+" "+yer!+" "+sem!
                 +" Added to favourates")));
           } 
+         
           });
           
         }, icon: Icon(Icons.star_border_outlined))

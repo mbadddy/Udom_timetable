@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 
 class Synchronize extends StatefulWidget {
   const Synchronize({super.key});
@@ -24,7 +26,31 @@ class _SynchronizeState extends State<Synchronize> {
   }
   @override
   Widget build(BuildContext context) {
-    return Container(child:favourate==null?Center(child: Text("No Favourate Availbale Please Select"),): 
-    Center(child: Text("This is Synchronization for ${sharedPreferences!.getString("college")}"),),);
+        Color appbar=appColr;
+  
+ final ThemeData mode = Theme.of(context);
+ var whichMode=mode.brightness;
+if(whichMode==Brightness.dark){
+  setState(() {
+          appbar=Colors.black12;
+      });
+     }
+    return Scaffold(
+       appBar: AppBar(
+
+        title:new Text("Synchronize"),
+        
+        backgroundColor: appbar,
+        actions: [
+  
+        ],
+        
+      ),
+      body: Container(child:favourate==null?Center(child: Text("No Favourate Availbale Please Select"),): 
+    Center(child: Text("This is Synchronization for ${sharedPreferences!.getString("college")}"),),),
+  
+    );
   }
 }
+
+

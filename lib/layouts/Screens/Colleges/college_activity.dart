@@ -25,7 +25,7 @@ class _CollegeeState extends State<Collegee> {
    String? college;
    Future<void> setPreference(bool value) async{
   sharedPreferences=await SharedPreferences.getInstance();
-   sharedPreferences!.setBool("favourate", value);
+   sharedPreferences!.setBool("favouratecoll", value);
      }
       Future<void> setCollegePref(String value) async{
   sharedPreferences=await SharedPreferences.getInstance();
@@ -48,13 +48,13 @@ class _CollegeeState extends State<Collegee> {
    Future getPreference() async{
          sharedPreferences=await SharedPreferences.getInstance();
          setState(() {
-          myfavourate=sharedPreferences!.getBool("favourate")!;  
+          myfavourate=sharedPreferences!.getBool("favouratecoll")!;  
          });
        
      }
   @override
   Widget build(BuildContext context) {
-    getPreference();
+    // getPreference();
      setCollegePref(widget.title);
     if(myfavourate!=null){
       print("fref "+myfavourate.toString());
@@ -74,7 +74,7 @@ class _CollegeeState extends State<Collegee> {
         }
         else{
         myfavourate=false;
-        print("pref imewekwa ");
+        print("combref imewekwa ");
         }
      
      Color appbar=appColr;
@@ -105,16 +105,19 @@ if(whichMode==Brightness.dark){
            IconButton(
             color: favourate,
             onPressed: () {  
+             
                   setState(() {
                      if(myfavourate==null || myfavourate==true){
                      myfavourate=false;
                     
                     setPreference(myfavourate!);
+                     getPreference();
                      }
                      else{
                        myfavourate=true;
                 
                       setPreference(myfavourate!);
+                       getPreference();
                      }
                  
                     

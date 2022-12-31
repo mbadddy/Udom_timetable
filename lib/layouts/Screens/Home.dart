@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/combine/allcombines.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/themes.dart';
 import 'package:udom_timetable/layouts/Screens/Setting.dart';
@@ -53,8 +54,8 @@ void _animatePages() {
     if(option=='Setting'){
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => Setting()));
     }
-    if(option=='Share'){
-      
+    if(option=='Combines'){
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => AllCombine()));   
     }
          print(option);
   }
@@ -81,7 +82,7 @@ if(whichMode==Brightness.dark){
           appbar=Colors.black12;
       });
 }
-     List<String> options = ['Setting', 'share'];
+     List<String> options = ['Setting', 'Combines'];
     Size size=MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(

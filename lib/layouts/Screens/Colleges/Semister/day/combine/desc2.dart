@@ -1,39 +1,27 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 
-class Summary extends StatefulWidget {
-  String title;
-  String subtile;
-  int years;
-  int sessions;
-  int labs;
-  int lectues;
-  int tutoris;
-  Summary({
+class Description2 extends StatefulWidget {
+ 
+  Description2({
     Key? key,
-    required this.title,
-    required this.subtile,
-    required this.years,
-    required this.sessions,
-    required this.labs,
-    required this.lectues,
-    required this.tutoris,
   }) : super(key: key);
   
   @override
-  _SummaryState createState() => _SummaryState();
+  _Description2State createState() => _Description2State();
 }
 
-class _SummaryState extends State<Summary>
+class _Description2State extends State<Description2>
     with SingleTickerProviderStateMixin {
   late Animation animation, delayedAnimation, muchDelayedAnimation, LeftCurve;
   late AnimationController animationController;
-
+  Box<List<String>>? combinebox;
   @override
   void initState() {
-
+   combinebox=Hive.box<List<String>>("combine");
     super.initState();
 
     animationController =
@@ -54,12 +42,41 @@ class _SummaryState extends State<Summary>
     animationController.dispose();
     super.dispose();
   }
+  
+List<String>? collegess;
+List<String>? yrs;
+List<String>? sems;
+List<String>? progs;
+String? colleg;
+String? yr;
+String? semm;
+String? progg;
+
   Widget build(BuildContext context) {
-   
- Color appbar=appColr;
+   collegess=combinebox!.get("colleges");
+   progs=combinebox!.get("programmes");
+   sems=combinebox!.get("semisters");
+   yrs=combinebox!.get("years");
+    if(collegess!=null)
+    {
+      for(var x=0;x<collegess!.length;x++){
+          {
+            setState(() {
+         colleg=collegess![x];
+         yr=yrs![x];
+         semm=sems![x];
+         progg=progs![x];
+            });
+        
+          }
+      }
+    }
+
+     Color appbar=appColr;
    final ThemeData mode = Theme.of(context);
    var whichMode=mode.brightness;
    if(whichMode==Brightness.dark){
+    print("dark");
   setState(() {
           appbar=Colors.black12;
       });
@@ -91,7 +108,16 @@ class _SummaryState extends State<Summary>
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          
+                          Transform(
+                            transform: Matrix4.translationValues(
+                                muchDelayedAnimation.value * width, 0, 0),
+                            child: Center(
+                              child: CircleAvatar(
+                                radius: 28,
+                                backgroundImage: AssetImage("assets/images/cive.jpg"),
+                              ),
+                            ),
+                          ),
                           Transform(
                             transform: Matrix4.translationValues(
                                 delayedAnimation.value * width, 0, 0),
@@ -109,7 +135,7 @@ class _SummaryState extends State<Summary>
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Text(
-                                        "${widget.title} Sessions",
+                                        "DETAILS FOR ALL COMBINE SESSIONS",
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13,
@@ -118,81 +144,73 @@ class _SummaryState extends State<Summary>
                                       ),
                                     ),
                                   ),
-                              
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10.0),
+                                    child: Text(
+                                  
+                                      "Combined Table Is According To your Favourate",
+                                      overflow: TextOverflow.ellipsis ,
+                                      style: TextStyle(
+                                        
+                                        fontWeight: FontWeight.bold,
+                                        fontSize:10,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
                                   Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
-                                    child: Column(children: [
-                                      Row(
+                                    child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          "Year: ${widget.years}",
+                                          Text(
+                                          "College: ${colleg}",
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                           ),
                                         ),
                                         SizedBox(
-                                          width: 23,
+                                          width: 20,
                                         ),
                                         Text(
-                                          "Semister: ${widget.subtile}",
+                                          "Programme: ${progg}",
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                           ),
                                         ),
-                                        SizedBox(
-                                          width: 23,
-                                        ),
-                                        Text(
-                                          "Sessions: ${widget.sessions}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
+                                        
                                       ],
                                     ),
-                               SizedBox(height: 20,),
-                                Row(
+                                  ),
+                                        Padding(
+                                    padding: const EdgeInsets.only(top: 8.0,left: 20.0),
+                                    child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          "Lectures: ${widget.lectues}",
+                                          Text(
+                                          "Year: ${yr}",
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                           ),
                                         ),
                                         SizedBox(
-                                          width: 23,
+                                          width: 50,
                                         ),
                                         Text(
-                                          "Tutorials: ${widget.tutoris}",
+                                          "Semister: ${semm}",
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                           ),
                                         ),
-                                        SizedBox(
-                                          width: 23,
-                                        ),
-                                        Text(
-                                          "Labs: ${widget.labs}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
+                                        
                                       ],
                                     ),
-
-                                    ],)
-                                    
-                                    
                                   ),
                                 ],
                               ),

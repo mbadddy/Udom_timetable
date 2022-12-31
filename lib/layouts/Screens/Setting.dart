@@ -8,6 +8,8 @@ import 'package:udom_timetable/layouts/Screens/Colors/themes.dart';
 import 'package:udom_timetable/layouts/Screens/Language/language.dart';
 import 'package:udom_timetable/layouts/Screens/SharedPreference/preference.dart';
 import 'package:udom_timetable/layouts/Screens/components/customdivider.dart';
+import 'package:udom_timetable/services/Translation/locale_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Setting extends StatefulWidget {
   const Setting({super.key});
@@ -24,19 +26,38 @@ Future getPreference() async{
   sharedPreferences=await SharedPreferences.getInstance();
   
 }
+Future setLanguage(String lang)async{
+  sharedPreferences=await SharedPreferences.getInstance();
+  sharedPreferences!.setString("language", lang);
+}
+String? language;
+Future getLanguage()async{
+  sharedPreferences=await SharedPreferences.getInstance();
+  setState(() {
+    language=sharedPreferences!.getString("language");
+  });
+  
+}
    bool check=false;
    final String title = 'language';
    String dropdownvalue = 'English';
   // final LanguageController _languageController = Get.find();
-final List<String> lang=["English","Swajili","Spanish","Japanese"];
+final List<String> lang=["English","Swahili","Arabic","Hindi","German","French"];
   
 @override
   void initState() {
    getPreference();
+   getLanguage();
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
+    if(language!=null){
+      setState(() {
+        dropdownvalue=language!;
+      });
+      print("language is ${language}............");
+    }
      Color appbar=appColr;
   
  final ThemeData mode = Theme.of(context);
@@ -51,13 +72,14 @@ if(whichMode==Brightness.dark){
     
      Consumer<ModelTheme>(
         builder: (context, ModelTheme themeNotifier, child) {
+      
           return Scaffold(
       appBar: AppBar(
           leading: IconButton(icon: Icon(Icons.arrow_back_ios),onPressed: () {
           Navigator.of(context).pop();
         },),
         centerTitle: true,
-        title:Text("Setting"),
+        title:Text(AppLocalizations.of(context)!.setting,),
         backgroundColor: appbar,
         ),
       
@@ -80,10 +102,8 @@ if(whichMode==Brightness.dark){
                   fontSize: MediaQuery.of(context).size.width * 0.045,
                 ),
               ),
-              ValueBuilder<bool?>(
-                initialValue: themeNotifier.isDark,
-                builder: (isChecked, updateFn) => Switch(
-                  value: isChecked!,
+              Switch(
+                  value: themeNotifier.isDark,
                   onChanged: (value) { 
                     themeNotifier.isDark?
                     themeNotifier.isDark=false:
@@ -93,7 +113,7 @@ if(whichMode==Brightness.dark){
                   activeTrackColor: mainColor.withOpacity(0.4),
                   activeColor: mainColor,
                 ),
-              ),
+              
             ],
           ),
         ),
@@ -119,6 +139,29 @@ if(whichMode==Brightness.dark){
                 onChanged: (symbol) {
                    setState(() {
                      dropdownvalue=symbol!;
+                     print(dropdownvalue);
+                     final provider=Provider.of<LocaleProvider>(context,listen: false);
+                     if(dropdownvalue=="English"){
+                        provider.setLocale(const Locale("en"));
+                        
+                     }
+                      if(dropdownvalue=="Swahili"){
+                        provider.setLocale(const Locale("sw"));
+                     }
+                      if(dropdownvalue=="Arabic"){
+                        provider.setLocale(const Locale("ar"));
+                     }
+                      if(dropdownvalue=="Hindi"){
+                        provider.setLocale(const Locale("hi"));
+                     }
+                      if(dropdownvalue=="German"){
+                        provider.setLocale(const Locale("de"));
+                     }
+                       if(dropdownvalue=="French"){
+                        provider.setLocale(const Locale("fr"));
+                     }
+                    setLanguage(dropdownvalue);
+                    getLanguage();
                    });
                 },
                 items: lang.map((String e) {
@@ -167,7 +210,35 @@ if(whichMode==Brightness.dark){
               ),
             ],
           ),
+          
         ),
+           const Divider(),
+
+                Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Automatic Sync',
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.045,
+                ),
+              ),
+              ValueBuilder<bool?>(
+                initialValue: false,
+                builder: (isChecked, updateFn) => Switch(
+                  value: isChecked!,
+                  onChanged: (value) { 
+                    
+                
+                  },
+                  activeTrackColor: mainColor.withOpacity(0.4),
+                  activeColor: mainColor,
+                ),
+              ),
+            ],
+          )),
          const Divider()
       ],
     )

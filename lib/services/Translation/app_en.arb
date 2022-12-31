@@ -1,0 +1,16 @@
+{
+    "language":"English",
+    "@language":{
+        "description":"The Current Language"
+      },
+    "helloworld":"Hello world",
+    "@helloworld":{
+        "description":"A programmer greeting"
+      },
+    "setting":"Setting",
+    "@setting":{
+        "description":"A programmer greeting"
+      }
+ 
+
+}

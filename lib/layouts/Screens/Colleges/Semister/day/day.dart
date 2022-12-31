@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/Actual_ratiba/overall.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/programme.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
+import 'package:udom_timetable/services/Modal/timetable.dart';
+import 'package:udom_timetable/services/timetable_Service.dart';
 
 class Day extends StatefulWidget {
   String title;
@@ -245,9 +247,15 @@ Future detector2() async{
        sharedPreferences=await SharedPreferences.getInstance();
        sharedPreferences!.clear();
 }
+
+//service started
+
+
+
+
 @override
   void initState() {
-   
+    
      getDayData();
      detector();
     //  detector2();
@@ -256,7 +264,7 @@ Future detector2() async{
  
   @override
   Widget build(BuildContext context) {
-     getDayData();
+    //  getDayData();
     //check if favourates is null
     if(favourate1==null){
       print("Favourate1 ni null");
@@ -552,17 +560,21 @@ print("iliyofika "+widget.a_prog.toString());
                  }
                 }
                      favourate_default=Colors.white;
+                     setState(() {
+                         getDayData();  
+                     });
                      }
                      else{
                         favourate5=true;
                         setAction(favourate5!,widget.title);
                          setState(() {
                             setDayData(widget.college, widget.programme, widget.year, widget.semister, widget.title);
+                              getDayData();  
                         });
                         favourate_default=Colors.red;
                      }
                   }
-                      
+                   
 
           });
          
@@ -571,7 +583,7 @@ print("iliyofika "+widget.a_prog.toString());
         ],
         
       ),
-      body: OverallAttendance(day: widget.title, semister: widget.semister, year: widget.year,),
+      body: OverallAttendance(day: widget.title, semister: widget.semister, year: widget.year,programme: widget.programme, college: widget.college,),
     );
   }
 }

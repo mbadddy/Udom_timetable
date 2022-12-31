@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/combine/allcombines.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/combine/combine_days.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/combine/description_card.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
@@ -54,6 +55,11 @@ class _CombineState extends State<Combine> {
     getWeekly();
     super.initState();
   }
+  void viewCombines(String option) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => AllCombine()));
+        
+  }
+   List<String> options = ['View',"Change"];
   @override
   Widget build(BuildContext context) {
    
@@ -74,7 +80,18 @@ if(whichMode==Brightness.dark){
         },),
         backgroundColor: appbar,
         actions: [
-     
+       PopupMenuButton(
+          position: PopupMenuPosition.under,
+          onSelected:viewCombines,
+          itemBuilder: (context) => 
+        
+         options.map((String option) {
+              return PopupMenuItem<String>(
+                 value: option,
+                child: Text(option),
+              );
+            }).toList(),
+        )
         ],
         
       ),
@@ -86,15 +103,15 @@ if(whichMode==Brightness.dark){
               flex: 9,
               child: Column(
               children: [
-                college!=null && coll!=null ? Description(college: college!, programme: programe!, sem: semist!, year: int.parse(year!)):
-                college!=null?Description(college: college!, programme: programe!, sem: semist!, year: int.parse(year!)):
-                coll!=null?Description(college: coll![0], programme: prog![0], sem: sem![0], year:int.parse(yea![0])):
-                Text("No favourate Available"),
+                (college!=null && coll!=null) && college!.isNotEmpty && coll!.isNotEmpty? Description(college: college!, programme: programe!, sem: semist!, year: int.parse(year!)):
+                college!=null && college!.isNotEmpty? Description(college: college!, programme: programe!, sem: semist!, year: int.parse(year!)):
+                coll!=null && coll!.isNotEmpty?Description(college: coll![0], programme: prog![0], sem: sem![0], year:int.parse(yea![0])):
+                Center(child:Text("No favourate Available")),
                 Expanded(child: 
-                college!=null && coll!=null ? CombinedDays(semister: semist!, year: int.parse(year!), college: college!, programme: programe!):
-                college!=null? CombinedDays(semister: semist!, year: int.parse(year!), college: college!, programme: programe!):
-                coll!=null? CombinedDays(semister: sem![0], year: int.parse(yea![0]), college:  coll![0], programme: prog![0]):
-                Text("No favourate Available"),
+                (college!=null && coll!=null) && (college!.isNotEmpty && coll!.isNotEmpty)? CombinedDays(semister: semist!, year: int.parse(year!), college: college!, programme: programe!):
+                college!=null && college!.isNotEmpty? CombinedDays(semister: semist!, year: int.parse(year!), college: college!, programme: programe!):
+                coll!=null && coll!.isNotEmpty? CombinedDays(semister: sem![0], year: int.parse(yea![0]), college:  coll![0], programme: prog![0]):
+                Center(child:Text("No favourate Available")),
                 )
                 
                  ]

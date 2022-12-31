@@ -1,36 +1,48 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 
-class OverallTimetableCard extends StatefulWidget {
-  final String? venue;
+class CombineCard extends StatefulWidget {
   final String? time;
-  final String? instructor;
   final String? course;
+  final String? venue;
   final String? category;
-  const OverallTimetableCard(
+  final String? lecture;
+  final String? day;
+  final String? coll;
+  final String? prog;
+  final String? sem;
+  final String? yerrr;
+  final String instructor;
+  const CombineCard(
     Key? key,
-    this.venue,
     this.time,
-    this.instructor,
     this.course,
+    this.venue,
     this.category,
+    this.lecture,
+    this.day,
+    this.coll,
+    this.prog,
+    this.sem,
+    this.yerrr,
+    this.instructor,
   ) : super(key: key);
 
   @override
-  _OverallTimetableCardState createState() => _OverallTimetableCardState();
+  _CombineCardState createState() => _CombineCardState();
 }
 
-class _OverallTimetableCardState extends State<OverallTimetableCard>
+class _CombineCardState extends State<CombineCard>
     with SingleTickerProviderStateMixin {
   late Animation animation, delayedAnimation;
   late AnimationController animationController;
-
+Box<List<String>>? combinebox;
   @override
   void initState() {
-    // splitTime(widget.time);
+    combinebox=Hive.box<List<String>>("combine");
     super.initState();
 
     animationController =
@@ -44,79 +56,17 @@ class _OverallTimetableCardState extends State<OverallTimetableCard>
   }
   @override
   void dispose() {
+  
     animationController.dispose();
     super.dispose();
   }
-  //   void splitTime(String? period){
-  //       var array=period!.split("-");
-  //       DateTime dt1=DateTime.parse(array[1]);
-  //        DateTime dt2=DateTime.parse(array[2]);
-  //        Duration dur=dt1.difference(dt2);
-  //        print("Duration is ${dur}");
-  // }
- 
   @override
   Widget build(BuildContext context) {
-    print("instructor ${widget.instructor!.length}...................................");
-
-if(widget.category!=null){
-  print("category is ${widget.category}............................");
-}
-
-
-    var arr=widget.time!.split("-");
-    var noww=DateTime.now();
-    var splitted_now=noww.toString().split(" ");
-    var splitted_now2=noww.toString().split(" ");
-    var dttt1;
-     var dttt2;
-     var dttttt1;
-     var dttttt2;
-     var category;
-     int lectures=0;
-     int tutorials=0;
-     int labs=0;
-    setState(() {
-      print(arr);
-      arr[1]="${arr[1]}:00";
-      arr[0]="${arr[0].replaceAll(' ', '')}:00";
-       splitted_now2[1]=arr[1];
-       dttt1=splitted_now2;
-         splitted_now[1]=arr[0];
-         dttt2=splitted_now;
-        dttttt1=dttt1[0]+""+dttt1[1];
-         dttttt2=dttt2[0]+" "+dttt2[1];
-         print("new date1 ${dttttt1}");
-         print("new date2 ${dttttt2}");
-    });
-   
-   
-      DateTime dt1=DateTime.parse(dttttt1);
-      DateTime dt2=DateTime.parse(dttttt2);
-      Duration durr=dt1.difference(dt2);
-     
-       setState(() {
-          
-             if(durr.inMinutes<120){
-            category="Tutorial";
-            tutorials++;
-                }
-                else if(widget.venue!.toLowerCase().contains("lab")){
-                category="Labaratory"; 
-                 labs++;
-                }
-                else{
-              category="Lecture"; 
-              lectures++;
-                }
-        });
-    
-     print("Duration ${durr.inMinutes}");
-    
+    combinebox=Hive.box<List<String>>("combine");
     final double width = MediaQuery.of(context).size.width;
     animationController.forward();
        Color appbar=appColr;
-   Color indicator=Colors.white70;
+   Color indicator=Color.fromARGB(103, 233, 224, 224);
    Color unselected=Colors.black26;
    final ThemeData mode = Theme.of(context);
    var whichMode=mode.brightness;
@@ -160,19 +110,26 @@ if(widget.category!=null){
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        "${widget.time}",
+                        "${widget.lecture}-${widget.time}",
                         style: TextStyle(
                           
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
                       ),
-                     
+                      SizedBox(
+                        height: 10,
+                      ),
+                     Text(
+                        "${widget.day}",
+                        style: TextStyle(
+                          
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
-                   SizedBox(
-                        width: 10,
-                      ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -187,18 +144,14 @@ if(widget.category!=null){
                       SizedBox(
                         height: 10,
                       ),
-                      SizedBox(
-                        width: 130,
-                        child: Text(
+                      Text(
                         "${widget.instructor}",
-                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                          
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
-                      ), ),
-                     
+                      ),
                     ],
                   ),
           
@@ -206,7 +159,7 @@ if(widget.category!=null){
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "${category}",
+                        "Lecture",
                         style: TextStyle(
                         
                           fontWeight: FontWeight.bold,
@@ -216,28 +169,18 @@ if(widget.category!=null){
                          SizedBox(
                         height: 10,
                       ),
-                      SizedBox(
-                        width: 80,
-                        child:Text(
+                           Text(
                         "${widget.venue}",
                         style: TextStyle(
-                           overflow: TextOverflow.ellipsis,
+                         
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
-                      ),),
-                          
+                      ),
                     ],
                   ),
                
-                      //  IconButton(
-                      //   alignment: Alignment.centerRight,
-                      //   color: appColr,
-                      //   iconSize: 18,
-                      //   onPressed: () {
-                        
-                      //    print("favourate");
-                      //  }, icon: Icon(Icons.star_border))
+                  
                   
 
                 

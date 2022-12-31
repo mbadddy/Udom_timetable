@@ -1,10 +1,15 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:provider/provider.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
-
+import 'package:udom_timetable/services/Modal/timetable.dart';
+import 'package:udom_timetable/services/timetable_Service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
 class Users extends StatefulWidget {
   const Users({super.key});
 
@@ -16,14 +21,22 @@ class _UsersState extends State<Users> {
   final TextEditingController id=TextEditingController();
   final TextEditingController name=TextEditingController();
   Box<String>? userbox;
-
+   TimetableService service=TimetableService();
+    late Future<Timetable> timetable;
+    //internet checker
+StreamSubscription? connection;
+bool isoffline = true;
+ 
   @override
   void initState() {
-   userbox=Hive.box<String>("users");
+    timetable=service.fetchTimetable();
+    userbox=Hive.box<String>("users");
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
+
+
       Color appbar=appColr;
   
  final ThemeData mode = Theme.of(context);
@@ -46,6 +59,7 @@ if(whichMode==Brightness.dark){
       body: Padding(padding: EdgeInsets.all(10),
       child: Column(
         children: [
+          
           Expanded(
             child: ValueListenableBuilder(
               valueListenable: userbox!.listenable(),
@@ -67,7 +81,36 @@ if(whichMode==Brightness.dark){
                 itemCount: users.keys.toList().length,);
               
             },)
-          ),Row(
+          ),
+      Expanded(child:
+      FutureBuilder<Timetable>(
+       future: timetable,
+       builder: (context, snapshot) {
+
+         if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data!.data.length,
+            itemBuilder: (context, index) {
+              
+            return 
+            ListTile(
+              leading: Text(snapshot.data!.data[index].course),
+              title: Text(snapshot.data!.data[index].instructor),
+              subtitle: Text(snapshot.data!.data[index].venue),
+              trailing: Text(snapshot.data!.data[index].day.toString()),
+            );
+          },);
+    } 
+    else if (snapshot.hasError) {
+      return Text('${snapshot.error}');
+    }
+
+    // By default, show a loading spinner.
+    return const CircularProgressIndicator();
+          },
+            )) ,  
+    
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ElevatedButton(onPressed: () {
