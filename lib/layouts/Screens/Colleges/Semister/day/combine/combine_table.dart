@@ -18,19 +18,7 @@ class _CombineState extends State<Combine> {
 
    
 //weekly
- String? college;
- String? programe;
- String? year;
- String? semist;
-  Future getWeekly() async{
-       sharedPreferences=await SharedPreferences.getInstance();
-      setState(() {
-         college=sharedPreferences!.getString("a_coll"); 
-          programe=sharedPreferences!.getString("a_prog"); 
-          year=sharedPreferences!.getString("a_year"); 
-          semist=sharedPreferences!.getString("a_sem"); 
-      });
- }
+ 
  //by day
  List<String>? coll;
   List<String>? prog;
@@ -52,7 +40,6 @@ class _CombineState extends State<Combine> {
  @override
   void initState() {
     getByDay();
-    getWeekly();
     super.initState();
   }
   void viewCombines(String option) {
@@ -103,13 +90,9 @@ if(whichMode==Brightness.dark){
               flex: 9,
               child: Column(
               children: [
-                (college!=null && coll!=null) && college!.isNotEmpty && coll!.isNotEmpty? Description(college: college!, programme: programe!, sem: semist!, year: int.parse(year!)):
-                college!=null && college!.isNotEmpty? Description(college: college!, programme: programe!, sem: semist!, year: int.parse(year!)):
                 coll!=null && coll!.isNotEmpty?Description(college: coll![0], programme: prog![0], sem: sem![0], year:int.parse(yea![0])):
                 Center(child:Text("No favourate Available")),
                 Expanded(child: 
-                (college!=null && coll!=null) && (college!.isNotEmpty && coll!.isNotEmpty)? CombinedDays(semister: semist!, year: int.parse(year!), college: college!, programme: programe!):
-                college!=null && college!.isNotEmpty? CombinedDays(semister: semist!, year: int.parse(year!), college: college!, programme: programe!):
                 coll!=null && coll!.isNotEmpty? CombinedDays(semister: sem![0], year: int.parse(yea![0]), college:  coll![0], programme: prog![0]):
                 Center(child:Text("No favourate Available")),
                 )

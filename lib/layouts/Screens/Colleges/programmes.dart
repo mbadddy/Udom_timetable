@@ -19,7 +19,7 @@ class Programe{
           },
             {
              "title":"BCs-IS",
-             'year':4,
+             'year':3,
              "subtitle":"Bachellor Of Science in Information System"
            },
             {
@@ -48,7 +48,7 @@ class Programe{
              "subtitle":"Bachellor Of Science in Multimedia Technology And Animation"
            },
            {
-             "title":"BCs-CSDF",
+             "title":"BCs-CSDFE",
              'year':4,
              "subtitle":"Bachellor Of Science in Cyber Security And Digital Forensic"  
            },

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/dashboard.dart';
 
 class SPlashscreen extends StatefulWidget {
@@ -30,7 +31,15 @@ class _SPlashscreenState extends State<SPlashscreen> {
 
   @override
   Widget build(BuildContext context) {
-
+    Color appbar=Colors.transparent;
+  
+ final ThemeData mode = Theme.of(context);
+var whichMode=mode.brightness;
+if(whichMode==Brightness.dark){
+  setState(() {
+          appbar=Colors.black12;
+      });
+}
     return 
     Scaffold(
       body:
@@ -39,11 +48,13 @@ class _SPlashscreenState extends State<SPlashscreen> {
         width: double.infinity,
         child: Center(
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.27,
+             decoration: BoxDecoration(
+                          color: appbar,
+                          borderRadius: BorderRadius.circular(60)),
+            height: MediaQuery.of(context).size.height * 0.17,
             width: MediaQuery.of(context).size.width * 0.35,
-            child: FlareActor(
-              "assets/school spleash.flr",
-              animation: "start",
+            child: Image.asset(
+              "assets/images/logo_prev_ui.png",
               fit: BoxFit.fill,
             ),
           ),

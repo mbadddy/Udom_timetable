@@ -98,21 +98,21 @@ if(whichMode==Brightness.dark){
               label: "Home"),
           BottomNavigationBarItem(
               icon: Icon(Icons.house),
-              activeIcon: Icon(Icons.phone_iphone_rounded),
+              activeIcon: Icon(Icons.house),
               label: "College"),
           BottomNavigationBarItem(
               icon: Icon(Icons.door_back_door_outlined),
-              activeIcon: Icon(Icons.keyboard_voice_outlined),
+              activeIcon: Icon(Icons.door_back_door_outlined),
               label: "Venue"),
        
           BottomNavigationBarItem(
               icon: Icon(Icons.sync),
-              activeIcon: Icon(Icons.bar_chart_rounded),
+              activeIcon: Icon(Icons.sync),
               label: "Sync"),
           BottomNavigationBarItem(
               icon: Icon(Icons.notifications),
               activeIcon: Icon(Icons.notifications),
-              label: "Notification"),
+              label: "Notify"),
         ],
       ),
     );

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/services/Modal/timetable.dart';
 import 'package:udom_timetable/services/timetable_Service.dart';
@@ -26,6 +27,7 @@ class _UsersState extends State<Users> {
     //internet checker
 StreamSubscription? connection;
 bool isoffline = true;
+
  
   @override
   void initState() {

@@ -9,14 +9,12 @@ class OverallAttendance extends StatefulWidget {
   int year;
   String college;
   String programme;
-  bool a_prog;
   OverallAttendance({
     Key? key,
     required this.semister,
     required this.year,
     required this.college,
     required this.programme,
-    required this.a_prog,
   }) : super(key: key);
   @override
   _OverallAttendanceState createState() => _OverallAttendanceState();
@@ -67,23 +65,28 @@ class _OverallAttendanceState extends State<OverallAttendance> {
               switch(index){
                  case 0:
                  Navigator.push(context, MaterialPageRoute(builder: (context) => 
-                 Day(title: 'Monday', semister: widget.semister, year: widget.year, college: widget.college, programme: widget.programme, a_prog: widget.a_prog,),));
+                 Day(title: 'Monday', semister: widget.semister, year: widget.year,
+                  college: widget.college, programme: widget.programme,),));
                  break;
                  case 1:
                   Navigator.push(context, MaterialPageRoute(builder: (context) =>
-                   Day(title: 'Tuesday',semister: widget.semister, year: widget.year, college: widget.college, programme: widget.programme,a_prog: widget.a_prog),));
+                   Day(title: 'Tuesday',semister: widget.semister, year: widget.year, 
+                   college: widget.college, programme: widget.programme,),));
                  break;
                  case 2:
                   Navigator.push(context, MaterialPageRoute(builder: (context) =>
-                   Day(title: 'Wednesday',semister: widget.semister, year: widget.year, college: widget.college, programme: widget.programme,a_prog: widget.a_prog),));
+                   Day(title: 'Wednesday',semister: widget.semister, year: widget.year,
+                    college: widget.college, programme: widget.programme,),));
                  break;
                 case 3:
                  Navigator.push(context, MaterialPageRoute(builder: (context) =>
-                  Day(title: 'Thursday',semister: widget.semister, year: widget.year, college: widget.college, programme: widget.programme,a_prog: widget.a_prog),));
+                  Day(title: 'Thursday',semister: widget.semister, year: widget.year, 
+                  college: widget.college, programme: widget.programme,),));
                  break;
                 case 4:
                  Navigator.push(context, MaterialPageRoute(builder: (context) =>
-                  Day(title: 'Friday',semister: widget.semister, year: widget.year, college: widget.college, programme: widget.programme,a_prog: widget.a_prog),));
+                  Day(title: 'Friday',semister: widget.semister, year: widget.year, 
+                  college: widget.college, programme: widget.programme,),));
                  break;
                  default:
                  print("sunday");

@@ -43,9 +43,50 @@ Future getLanguage()async{
    String dropdownvalue = 'English';
   // final LanguageController _languageController = Get.find();
 final List<String> lang=["English","Swahili","Arabic","Hindi","German","French"];
+  //auto switch
+  //
+bool? isSwitchedd;
+  bool isSwitched = false;  
+  Future setSwitchOn(bool isSwitchedd)async{
+    sharedPreferences=await SharedPreferences.getInstance();
+    sharedPreferences!.setBool("autoSwiched", isSwitchedd);
+  }
+    Future setSyncSwitchOn(isSwitchedd)async{
+    sharedPreferences=await SharedPreferences.getInstance();
+    sharedPreferences!.setBool("syncSwiched", isSwitchedd);
+  }
+   Future getSwitchOn()async{
+    sharedPreferences=await SharedPreferences.getInstance();
+    setState(() {
+      isSwitchedd=sharedPreferences!.getBool("autoSwiched");
+      sharedPreferences!.getBool("syncSwiched");
+    });
+  }
+  void toggleSwitch(bool value) {  
   
+    if(isSwitched == false)  
+    {  
+      setState(() {  
+        isSwitched = true; 
+        setSwitchOn(isSwitched);
+        setSyncSwitchOn(isSwitched);
+        getSwitchOn(); 
+      });  
+    }  
+    else  
+    {  
+      setState(() {  
+        isSwitched = false;  
+        setSwitchOn(isSwitched);
+        setSyncSwitchOn(isSwitched);
+        getSwitchOn();
+      });  
+    } 
+  } 
+  //
 @override
   void initState() {
+    getSwitchOn();
    getPreference();
    getLanguage();
     super.initState();
@@ -110,8 +151,10 @@ if(whichMode==Brightness.dark){
                     themeNotifier.isDark=true;
                 
                   },
-                  activeTrackColor: mainColor.withOpacity(0.4),
-                  activeColor: mainColor,
+                   activeColor: Colors.blue,  
+              activeTrackColor: Colors.yellow,  
+              inactiveThumbColor: Colors.redAccent,  
+              inactiveTrackColor: Colors.orange,  
                 ),
               
             ],
@@ -225,17 +268,14 @@ if(whichMode==Brightness.dark){
                   fontSize: MediaQuery.of(context).size.width * 0.045,
                 ),
               ),
-              ValueBuilder<bool?>(
-                initialValue: false,
-                builder: (isChecked, updateFn) => Switch(
-                  value: isChecked!,
-                  onChanged: (value) { 
-                    
+             Switch(
+                  onChanged: toggleSwitch,
+                value: isSwitchedd ?? isSwitched,  
+              activeColor: Colors.blue,  
+              activeTrackColor: Colors.yellow,  
+              inactiveThumbColor: Colors.redAccent,  
+              inactiveTrackColor: Colors.orange,  
                 
-                  },
-                  activeTrackColor: mainColor.withOpacity(0.4),
-                  activeColor: mainColor,
-                ),
               ),
             ],
           )),

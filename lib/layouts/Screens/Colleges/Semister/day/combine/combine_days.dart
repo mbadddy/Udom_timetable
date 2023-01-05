@@ -60,7 +60,7 @@ List<String> venyues=[];
 
 List<String> time_from=["07:30","08:00","08:30","09:00","09:30","10:00","10:30"
 ,"11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30",
-"16:00","16:30","17:00","17:30","18:00","21:15","21:20","21:05","20:45","20:40","20:42","20:44","20:46","20:50","19:00","19:30","21:30","21:00","22:30","23:00","19:40","22:00","19:50","20:00"];
+"16:00","16:30","17:00","17:30","18:00","18:30","21:15","21:20","21:05","20:45","20:40","20:42","20:44","20:46","20:50","19:00","19:30","21:30","21:00","22:30","23:00","19:40","22:00","19:50","20:00"];
 List<String> tooos=["08:30","09:00","09:30","10:00","10:30"
 ,"11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30",
 "16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","23:30"];
@@ -380,7 +380,9 @@ String venue,String time_to,String day){
   showDialog(context: context, builder: (context) {
     return Dialog(
         child: Container(
-          
+          decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+        ),
           child:Padding(padding: EdgeInsets.all(10),
           child:     
            Column(
@@ -436,7 +438,7 @@ String venue,String time_to,String day){
                        if(semm[x]==sem){
                        semm.removeWhere((element) => element==sem);
                          print("remove ${sem}");
-                combinebox!.put('years', semm);
+                combinebox!.put('semisters', semm);
                        }
                        
                     }

@@ -10,13 +10,11 @@ class Semist extends StatefulWidget {
   int year;
   String programme;
   String college;
-  bool a_prog;
   Semist({
     Key? key,
     required this.year,
     required this.programme,
     required this.college,
-    required this.a_prog,
   }) : super(key: key);
 
   @override
@@ -43,10 +41,12 @@ final List<String> lang=["ONE","TWO"];
  }
  String? sem;
  String? yer;
+ bool? truth;
   Future getAllDaysColor() async{
       sharedPreferences=await SharedPreferences.getInstance();
       yer=sharedPreferences!.getString("a_year");
       sem=sharedPreferences!.getString("a_sem");
+      truth=sharedPreferences!.getBool("truth");
  }
  @override
   void initState() {
@@ -62,7 +62,6 @@ final List<String> lang=["ONE","TWO"];
       if(sem==null || yer==null){
           setAllDaysColor(widget.year.toString(),'ONE'); 
       }
-      print("semi changes "+widget.a_prog.toString());
          
     });
     return Column(
@@ -88,9 +87,13 @@ final List<String> lang=["ONE","TWO"];
                     dropdownvalue=symbol!;
                     if(yer!=null){
                       print("waiting for remove "+yer!+" "+sem!);
-                       removeAllDaysColor();
+                      
                         print(yer!+" "+sem!+" removed");
-                       setAllDaysColor(widget.year.toString(),dropdownvalue);
+                        //apa
+                        if(truth==false){
+                           removeAllDaysColor();
+                          setAllDaysColor(widget.year.toString(),dropdownvalue);
+                        }
                          print(widget.year.toString()+" "+
                         dropdownvalue+" replace them");
                     }
@@ -123,27 +126,30 @@ final List<String> lang=["ONE","TWO"];
         const Divider(),
         dropdownvalue=="ONE" && (widget.year==1)?
         Expanded(flex:1,child:OverallAttendance(
-          semister: 'ONE', year: 1, college: widget.college, programme: widget.programme, a_prog: widget.a_prog,)):
+          semister: 'ONE', year: 1, college: widget.college, programme: widget.programme)):
         (widget.year==1)? Expanded(
         flex: 1,
         child: Center(child:Text("First Year Semister 2 Not Yet Released"))
         ) :
         dropdownvalue=="ONE" && widget.year==2 ?
-        Expanded(flex:1,child:OverallAttendance(semister: 'ONE', year: 2, college: widget.college, programme: widget.programme,a_prog: widget.a_prog)):
+        Expanded(flex:1,child:OverallAttendance(semister: 'ONE', year: 2, college: widget.college, 
+        programme: widget.programme)):
         widget.year==2 ?
        Expanded(
         flex: 1,
         child: Center(child:Text("Second Year Semister 2 Not Yet Released"))
         ) :
         dropdownvalue=="ONE" && widget.year==3?
-        Expanded(flex:1,child:OverallAttendance(semister: 'ONE', year: 3, college: widget.college, programme: widget.programme,a_prog: widget.a_prog)):
+        Expanded(flex:1,child:OverallAttendance(semister: 'ONE', year: 3, college: widget.college,
+         programme: widget.programme)):
         widget.year==3?
        Expanded(
         flex: 1,
         child: Center(child:Text("Third Year Semister 2 Not Yet Released"))
         ) :
         dropdownvalue=="ONE" && widget.year==4?
-        Expanded(flex:1,child:OverallAttendance(semister: 'ONE', year: 4, college: widget.college, programme: widget.programme,a_prog: widget.a_prog)):
+        Expanded(flex:1,child:OverallAttendance(semister: 'ONE', year: 4, college: widget.college, 
+        programme: widget.programme,)):
         widget.year==4?
        Expanded(
         flex: 1,

@@ -1,11 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/programme.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/programmes.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
-import 'package:udom_timetable/layouts/Screens/SharedPreference/preference.dart';
 import 'package:udom_timetable/layouts/Screens/components/customdivider.dart';
 
 class Collegee extends StatefulWidget {
@@ -21,61 +18,18 @@ class Collegee extends StatefulWidget {
 }
 
 class _CollegeeState extends State<Collegee> {
-   SharedPreferences? sharedPreferences;
-   String? college;
-   Future<void> setPreference(bool value) async{
-  sharedPreferences=await SharedPreferences.getInstance();
-   sharedPreferences!.setBool("favouratecoll", value);
-     }
-      Future<void> setCollegePref(String value) async{
-  sharedPreferences=await SharedPreferences.getInstance();
-   sharedPreferences!.setString("college", value);
-     }
-          Future<void> removeCollegePref(String value) async{
-  sharedPreferences=await SharedPreferences.getInstance();
-   sharedPreferences!.remove("college");
-     }
+
 
   @override
   void initState() {
-   getPreference();
     super.initState();
   }
-  
- Color favourate=Colors.white;
- 
-  bool? myfavourate;
-   Future getPreference() async{
-         sharedPreferences=await SharedPreferences.getInstance();
-         setState(() {
-          myfavourate=sharedPreferences!.getBool("favouratecoll")!;  
-         });
-       
-     }
+
+
   @override
   Widget build(BuildContext context) {
     // getPreference();
-     setCollegePref(widget.title);
-    if(myfavourate!=null){
-      print("fref "+myfavourate.toString());
-      if(myfavourate==true){
-        setState(() {
-          favourate=Colors.red;
-          setCollegePref(widget.title);
-        });
-      }
-      else{
-        setState(() {
-          favourate=Colors.white;
-           removeCollegePref('college'); 
-                });
-      }
-      
-        }
-        else{
-        myfavourate=false;
-        print("combref imewekwa ");
-        }
+    
      
      Color appbar=appColr;
    
@@ -102,32 +56,7 @@ if(whichMode==Brightness.dark){
         title:new Text(widget.title),
         
         actions: [
-           IconButton(
-            color: favourate,
-            onPressed: () {  
-             
-                  setState(() {
-                     if(myfavourate==null || myfavourate==true){
-                     myfavourate=false;
-                    
-                    setPreference(myfavourate!);
-                     getPreference();
-                     }
-                     else{
-                       myfavourate=true;
-                
-                      setPreference(myfavourate!);
-                       getPreference();
-                     }
-                 
-                    
-                  });
-            
           
-          
-            },
-            icon:  Icon(Icons.star_border_purple500),
-          ),
        IconButton(
             onPressed: () {
               // method to show the search bar

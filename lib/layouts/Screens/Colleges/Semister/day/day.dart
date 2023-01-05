@@ -17,7 +17,6 @@ class Day extends StatefulWidget {
   String college;
   String programme;
   int year;
-  bool a_prog;
   Day({
     Key? key,
     required this.title,
@@ -25,7 +24,6 @@ class Day extends StatefulWidget {
     required this.college,
     required this.programme,
     required this.year,
-    required this.a_prog,
   }) : super(key: key);
 
   @override
@@ -264,6 +262,7 @@ Future detector2() async{
  
   @override
   Widget build(BuildContext context) {
+    
     //  getDayData();
     //check if favourates is null
     if(favourate1==null){
@@ -419,7 +418,6 @@ Future detector2() async{
                             }
  
     
-print("iliyofika "+widget.a_prog.toString());
  
     return Scaffold(
        appBar: AppBar(
@@ -434,9 +432,8 @@ print("iliyofika "+widget.a_prog.toString());
         actions: [
           Padding(padding: EdgeInsets.only(right: 10),
           child:IconButton(
-            isSelected: widget.a_prog,
             color: favourate_default,
-            onPressed: widget.a_prog==true? null :() {
+            onPressed: () {
           setState(() {
                   if(widget.title=="Monday"){
                     print("monday ");

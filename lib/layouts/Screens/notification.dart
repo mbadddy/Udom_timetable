@@ -44,21 +44,6 @@ class _NotificationsState extends State<Notifications> {
    
      }
 
-
-//weekly
- String? college;
- String? programe;
- String? year;
- String? semist;
-  Future getWeekly() async{
-       sharedPreferences=await SharedPreferences.getInstance();
-      setState(() {
-         college=sharedPreferences!.getString("a_coll"); 
-          programe=sharedPreferences!.getString("a_prog"); 
-          year=sharedPreferences!.getString("a_year"); 
-          semist=sharedPreferences!.getString("a_sem"); 
-      });
- }
  //by day
  List<String>? coll;
   List<String>? prog;
@@ -66,6 +51,7 @@ class _NotificationsState extends State<Notifications> {
   List<String>? sem;
   List<String>? day;
   bool? combine;
+  bool? exam;
   Future getByDay() async{
        sharedPreferences=await SharedPreferences.getInstance();
     setState(() {
@@ -75,6 +61,7 @@ class _NotificationsState extends State<Notifications> {
             sem=sharedPreferences!.getStringList("semisters");
              day=sharedPreferences!.getStringList("days"); 
              combine=sharedPreferences!.getBool("favourate"); 
+             exam=sharedPreferences!.getBool("e_favourate");
     });
  }
 
@@ -176,6 +163,19 @@ restoreNotify(){
     "c_cozes":c_cozes,
     "c_instructs":c_instructs
    },rescheduleOnReboot: true,wakeup: true,exact: true);
+        AndroidAlarmManager.periodic(const Duration(seconds: 60),3,callBackExam,params: {
+    "exam":exam,
+    "notify":minutes[i-1],
+     "e_programes":e_progs,
+    "e_colleges":e_colleges,
+    "e_years":e_yrs,
+    "e_semister":e_sems,
+    "e_venues":e_venyus,
+    "e_days":e_dayss,
+    "e_t_from":e_time_froms,
+    "e_t_to":e_tymes,
+    "e_cozes":e_cozes,
+   },rescheduleOnReboot: true,wakeup: true,exact: true);
                                                       print("value ${_value}...............");
                                                     });
                                                   },
@@ -192,6 +192,7 @@ restoreNotify(){
   }
 
  Box<List<String>>? combinebox;
+ Box<List<String>>? exambox;
 
 
 
@@ -203,12 +204,12 @@ restoreNotify(){
     service=PromodoroTimer();
     // 
     getByDay();
-    getWeekly();
    getPreferences();
    getNotification();
    getSwitchOn();
    restoreNotify();
     combinebox=Hive.box<List<String>>("combine");
+    exambox=Hive.box<List<String>>("Exams");
     super.initState();
   }
 
@@ -224,7 +225,16 @@ restoreNotify(){
                 List<String>? c_tymes;
                 List<String>? c_instructs;
 
-
+//axams
+ List<String>? e_colleges;
+  List<String>? e_progs;
+    List<String>? e_yrs;
+      List<String>? e_sems;
+        List<String>? e_cozes;
+          List<String>? e_venyus;
+            List<String>? e_dayss;
+              List<String>? e_time_froms;
+                List<String>? e_tymes;
 
   bool checker=false;
   bool? isSwitchedd;
@@ -303,6 +313,20 @@ restoreNotify(){
     print("combine courses...................${c_cozes}");
     } 
 
+ if(exam==true){
+       setState(() {
+         e_colleges=exambox!.get("e_colleges"); 
+         e_progs=exambox!.get("e_programmes"); 
+         e_yrs=exambox!.get("e_years"); 
+         e_sems=exambox!.get("e_semisters"); 
+         e_venyus=exambox!.get("e_venues"); 
+         e_dayss=exambox!.get("e_days"); 
+         e_time_froms=exambox!.get("e_time_from"); 
+         e_tymes=exambox!.get("e_time_to"); 
+         e_cozes=exambox!.get("e_courses"); 
+            // instructors
+    });
+    }
 //  String? college;
 //  String? programe;
 //  String? year;
@@ -316,14 +340,6 @@ restoreNotify(){
     print("colleges...................${coll}");
     print("years...................${yea}");
    }
-//by week
- if(year!=null){
-    print("semister...................${semist}");
-    print("program...................${programe}");
-    print("college...................${college}");
-    print("year...................${year}");
-    print("combine...................${combine}");
- }
 
    if(notify!=null){
       

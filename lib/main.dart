@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,8 +43,14 @@ void main() async{
   Hive.init(document.path);
   await Hive.openBox<String>("users");
   await Hive.openBox<List<String>>("combine");
-   await Hive.openBox<List<String>>("timetable");
+  await Hive.openBox<List<String>>("Exams");
+  await Hive.openBox<List<String>>("timetable");
+  await Hive.openBox<String>("swahili");
+  await Hive.openBox<String>("arabic");
+  await Hive.openBox<String>("france");
+ 
    await NotificationService().setup();
+   MobileAds.instance.initialize();
    //
 getHomeNotification();
   //end
@@ -129,9 +136,36 @@ getHomeNotification();
     "dt_yr":yerrrs,
     "dt_sem":semmms,
 
-"notify":sharedPreferences.getInt("notify")
+    "notify":sharedPreferences.getInt("notify")
    },rescheduleOnReboot: true,wakeup: true,exact: true);
    //end
+  
+//exam
+Box<List<String>> exambox=Hive.box<List<String>>("Exams");
+       bool? myfavourate=sharedPreferences.getBool("e_favourate");
+      List<String>? e_colleges=exambox.get("e_colleges"); 
+       List<String>?  e_progs=combinebox.get("e_programmes"); 
+         List<String>? e_yrs=combinebox.get("e_years"); 
+         List<String>? e_sems=combinebox.get("e_semisters"); 
+         List<String>? e_venyus=combinebox.get("e_venues"); 
+         List<String>? e_dayss=combinebox.get("e_days"); 
+         List<String>? e_time_froms=combinebox.get("e_time_from"); 
+         List<String>? e_tymes=combinebox.get("e_time_to"); 
+         List<String>? e_cozes=combinebox.get("e_courses"); 
+     AndroidAlarmManager.periodic(const Duration(seconds: 60),3,callBackExam,params: {
+    "exam":myfavourate,
+    "notify":sharedPreferences.getInt("notify"),
+     "e_programes":e_progs,
+    "e_colleges":e_colleges,
+    "e_years":e_yrs,
+    "e_semister":e_sems,
+    "e_venues":e_venyus,
+    "e_days":e_dayss,
+    "e_t_from":e_time_froms,
+    "e_t_to":e_tymes,
+    "e_cozes":e_cozes,
+   },rescheduleOnReboot: true,wakeup: true,exact: true);
+//end exam
 
       if(sharedPreferences.getInt("notify")==null){
         AndroidAlarmManager.cancel(1);
@@ -139,14 +173,153 @@ getHomeNotification();
       
 
 }
+
+
+@pragma('vm:entry-point')
+Future<void> callBackExam(int id,Map<String,dynamic> data)async{
+ print("ipo kwenye exam...........................${data["notify"]}...${data['exam']}");
+  WidgetsFlutterBinding.ensureInitialized();
+ if(Platform.isAndroid){
+      SharedPreferencesAndroid.registerWith();
+    }
+    if(Platform.isIOS){
+      SharedPreferencesIOS.registerWith();
+    }
+ DateTime day=DateTime.now();
+     String today=DateFormat.EEEE().format(day);
+     String td_time=DateFormat.Hm().format(day); 
+     if(data["notify"]!=null){
+       if(data['exam']==true){
+        if(data["e_days"]!=null){
+          for(var c_day=0;c_day<data["e_days"]!.length;c_day++){
+     if(data["e_days"]![c_day]==today){
+      var noww=DateTime.now();
+      var splitted_now=noww.toString().split(" ");
+      var splitted_now2=noww.toString().split(" ");
+      var dttt1;
+      var dttt2;
+      var dttttt1;
+      var dttttt2;
+      var category;
+      var c_time=data['e_t_from']![c_day];
+      c_time="${c_time}:00";
+      td_time="${td_time}";
+   
+       splitted_now2[1]=c_time;
+       dttt1=splitted_now2;
+       splitted_now[1]=td_time;
+       dttt2=splitted_now;
+      dttttt1=dttt1[0]+" "+dttt1[1];
+      dttttt2=dttt2[0]+" "+dttt2[1];
+      DateTime dt1=DateTime.parse(dttttt1);
+      DateTime dt2=DateTime.parse(dttttt2);
+      Duration durr=dt1.difference(dt2);
+      var time_category;
+      var dataa=data['e_t_from']![c_day].split(":");
+      print("exam apa juuu.............................. ${durr.inMinutes}");
+      if(int.parse(dataa[0])>=0 && int.parse(dataa[0])<12){
+        time_category="AM";
+      }
+      else{
+        time_category="PM";
+      }
+        if(durr.inMinutes==data["notify"] || durr.inMinutes==data['notify']-1){
+          setHomeNotification(data["e_cozes"]![c_day],
+           '${data['e_t_from']![c_day]}-${data['e_t_to']![c_day]}','${data['e_days'][c_day]}','${data['e_venues'][c_day]}'
+           ,'');
+          getHomeNotification();
+ PromodoroTimer().enterAtWork("After ${data["notify"]} minutes You Have exam to Attend",
+ "${data["e_cozes"]![c_day]}  ${data['e_t_from']![c_day]} $time_category  ${data["e_venues"]![c_day]}",
+ "before timetable","pristive","new Payload");
+      }
+      if(durr.inMinutes==0){
+ PromodoroTimer().enterAtWork("Your Exam time is ready! now",
+ "${data["e_cozes"]![c_day]}  ${data['e_t_from']![c_day]} $time_category  ${data["e_venues"]![c_day]}",
+ "exact imetable","pristive","new Payload");
+      }
+             }
+          }
+        }
+       }
+     } 
+}
+
+
 @pragma('vm:entry-point')
 Future<void> callBackDyDispacher(int id,Map<String,dynamic> data)async{
-   print("imefika apaa mwanzo");
+   print("imefika apaa mwanzo ${data['notify']}");
    WidgetsFlutterBinding.ensureInitialized();
-   if(data['d_programes']!=null && data['d_programes'].isNotEmpty 
+   if(data["notify"]==null){
+    data["notify"]==30;
+   }
+   if(data['notify']!=null){
+            
+  DateTime day=DateTime.now();
+     String today=DateFormat.EEEE().format(day);
+if(data['d_programes']!=null && data['d_programes'].isNotEmpty 
    && data['dt_venues']!=null && data['dt_days'].isNotEmpty){
-    if(data['d_programes'].length>1){
-       print("more than once");
+    if(data['d_day'].length>1){
+       print("more than once............................");
+         for(var p=0;p<data['d_day'].length;p++){
+         if(data['d_day'][p]==today){
+   String td_time=DateFormat.Hm().format(day); 
+      for(var dy=0;dy<data['dt_venues'].length;dy++){
+        if(data['dt_progs'][dy]==data['d_programes'][p]
+        && data['dt_yr'][dy]==data['d_years'][p]
+        &&  data['dt_sem'][dy]==data['d_semister'][p]
+        &&  data['dt_days'][dy]==data['d_day'][p]){
+       var arr=data['dt_tyme'][dy].split("-");
+    var noww=DateTime.now();
+    var splitted_now=noww.toString().split(" ");
+    var splitted_now2=noww.toString().split(" ");
+    var dttt1;
+     var dttt2;
+     var dttttt1;
+     var dttttt2;
+     var category;
+      var c_time=arr[0];
+      c_time="${c_time}:00";
+      td_time="${td_time}";
+   
+       splitted_now2[1]=c_time;
+       dttt1=splitted_now2;
+       splitted_now[1]=td_time;
+       dttt2=splitted_now;
+      dttttt1=dttt1[0]+" "+dttt1[1].toString().replaceAll(" ",'');
+      dttttt2=dttt2[0]+" "+dttt2[1];
+      DateTime dt1=DateTime.parse(dttttt1);
+      DateTime dt2=DateTime.parse(dttttt2);
+      Duration durr=dt1.difference(dt2);
+      var time_category;
+      var dataa=arr[1].split(":");
+      if(int.parse(dataa[0])>=0 && int.parse(dataa[0])<12){
+        time_category="AM";
+      }
+      else{
+        time_category="PM";
+      }
+       print("wait...for more than once...............durr..${durr.inMinutes}....notify....${data['notify']}");
+        if(durr.inMinutes==data["notify"] || durr.inMinutes==(data['notify']-1)){
+           print("tulia..........................");
+           setHomeNotification(data["dt_cozes"]![dy], data['dt_tyme']![dy],
+           '${data['dt_days'][dy]}','${data['dt_venues'][dy]}','${data['dt_instruct'][dy]}');
+           getHomeNotification();
+ PromodoroTimer().enterAtWork("After ${data["notify"]} minutes You Have Session to Attend",
+ "${data["dt_cozes"]![dy]}  ${data['dt_tyme']![dy]} $time_category  ${data["dt_venues"][dy]}",
+ "before timetable","pristive","new Payload");
+   
+      }
+      if(durr.inMinutes==0){
+ PromodoroTimer().enterAtWork("Your Session time is ready! now",
+ "${data["dt_cozes"]![dy]}  ${data['dt_tyme']![dy]} $time_category  ${data["dt_venues"]![dy]}"
+ ,"exact timetable","pristive","new Payload");
+      }
+        }
+      }
+         }
+  
+          }
+      
     }
     else{
       print("imewekwa moja favourate");
@@ -158,7 +331,7 @@ Future<void> callBackDyDispacher(int id,Map<String,dynamic> data)async{
         && data['dt_yr'][dy]==data['d_years'][0]
         &&  data['dt_sem'][dy]==data['d_semister'][0]
         &&  data['dt_days'][dy]==data['d_day'][0]){
-       var arr=data['dt_tyme'][0].split("-");
+       var arr=data['dt_tyme'][dy].split("-");
     var noww=DateTime.now();
     var splitted_now=noww.toString().split(" ");
     var splitted_now2=noww.toString().split(" ");
@@ -189,36 +362,47 @@ Future<void> callBackDyDispacher(int id,Map<String,dynamic> data)async{
         time_category="PM";
       }
        print("wait..................");
-        if(durr.inMinutes==data["notify"]){
+        if(durr.inMinutes==data["notify"] || (durr.inMinutes==data['notify']-1)){
            print("tulia..........................");
-           setHomeNotification(data["dt_cozes"]![dy], data['dt_tyme']![dy]);
+           setHomeNotification(data["dt_cozes"]![dy], data['dt_tyme']![dy],
+           '${data['dt_days'][dy]}','${data['dt_venues'][dy]}','${data['dt_instruct'][dy]}');
            getHomeNotification();
  PromodoroTimer().enterAtWork("After ${data["notify"]} minutes You Have Session to Attend",
- "${data["dt_cozes"]![dy]} ${data['dt_tyme']![dy]} $time_category ${data["dt_venues"][dy]}",
- "timetable","pristive","new Payload");
+ "${data["dt_cozes"]![dy]}  ${data['dt_tyme']![dy]} $time_category  ${data["dt_venues"][dy]}",
+ "before timetable","pristive","new Payload");
    
       }
       if(durr.inMinutes==0){
  PromodoroTimer().enterAtWork("Your Session time is ready! now",
- "${data["dt_cozes"]![dy]}  ${data['dt_tyme']![dy]} $time_category ${data["dt_venues"]![dy]}"
- ,"timetable","pristive","new Payload");
+ "${data["dt_cozes"]![dy]}  ${data['dt_tyme']![dy]} $time_category  ${data["dt_venues"]![dy]}"
+ ,"exact timetable","pristive","new Payload");
       }
         }
       }
     }
        
    }
+   }
+   
 }
 
-Future<void> setHomeNotification(String course,time)async{
+Future<void> setHomeNotification(course,time,day,venue,lecture)async{
  SharedPreferences preferences=await SharedPreferences.getInstance();
     preferences.setString("h_course", course);
     preferences.setString("h_time", time);
+    preferences.setString("h_day", day);
+    preferences.setString("h_venue", venue);
+    preferences.setString("h_lecture", lecture);
+
 }
 Future<void> getHomeNotification()async{
  SharedPreferences preferences=await SharedPreferences.getInstance();
-    preferences.getString("h_course");
-    preferences.getString("h_time");
+ 
+      preferences.getString("h_course");
+      preferences.getString("h_time");
+      preferences.getString("h_day");
+      preferences.getString("h_venue");
+      preferences.getString("h_lecture");
 }
 
 
@@ -240,14 +424,14 @@ Future<void> callbackDispatcher(int id,Map<String,dynamic> data) async{
         if(data["c_days"]!=null){
           for(var c_day=0;c_day<data["c_days"]!.length;c_day++){
              if(data["c_days"]![c_day]==today){
-    var noww=DateTime.now();
-    var splitted_now=noww.toString().split(" ");
-    var splitted_now2=noww.toString().split(" ");
-    var dttt1;
-     var dttt2;
-     var dttttt1;
-     var dttttt2;
-     var category;
+      var noww=DateTime.now();
+      var splitted_now=noww.toString().split(" ");
+      var splitted_now2=noww.toString().split(" ");
+      var dttt1;
+      var dttt2;
+      var dttttt1;
+      var dttttt2;
+      var category;
       var c_time=data['c_t_from']![c_day];
       c_time="${c_time}:00";
       td_time="${td_time}";
@@ -269,13 +453,19 @@ Future<void> callbackDispatcher(int id,Map<String,dynamic> data) async{
       else{
         time_category="PM";
       }
-        if(durr.inMinutes==data["notify"]){
-          setHomeNotification(data["c_cozes"]![c_day], '${data['c_t_from']![c_day]}-${data['c_t_to']![c_day]}');
+        if(durr.inMinutes==data["notify"] || durr.inMinutes==data['notify']-1){
+          setHomeNotification(data["c_cozes"]![c_day],
+           '${data['c_t_from']![c_day]}-${data['c_t_to']![c_day]}','${data['c_days'][c_day]}','${data['c_venues'][c_day]}'
+           ,'${data['c_instructs'][c_day]}');
           getHomeNotification();
- PromodoroTimer().enterAtWork("After ${data["notify"]} minutes You Have Session to Attend","${data["c_cozes"]![c_day]} ${data['c_t_from']![c_day]} $time_category ${data["c_venues"]![c_day]}","timetable","pristive","new Payload");
+ PromodoroTimer().enterAtWork("After ${data["notify"]} minutes You Have Session to Attend",
+ "${data["c_cozes"]![c_day]}  ${data['c_t_from']![c_day]} $time_category  ${data["c_venues"]![c_day]}",
+ "before timetable","pristive","new Payload");
       }
       if(durr.inMinutes==0){
- PromodoroTimer().enterAtWork("Your Session time is ready! now","${data["c_cozes"]![c_day]}  ${data['c_t_from']![c_day]} $time_category ${data["c_venues"]![c_day]}","timetable","pristive","new Payload");
+ PromodoroTimer().enterAtWork("Your Session time is ready! now",
+ "${data["c_cozes"]![c_day]}  ${data['c_t_from']![c_day]} $time_category  ${data["c_venues"]![c_day]}",
+ "exact timetable","pristive","new Payload");
       }
              }
           }

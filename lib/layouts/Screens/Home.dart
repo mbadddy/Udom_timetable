@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:udom_timetable/Tranlation/translate.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/combine/allcombines.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/themes.dart';
 import 'package:udom_timetable/layouts/Screens/Setting.dart';
 import 'package:udom_timetable/layouts/Screens/Topslider/image.dart';
-import 'package:udom_timetable/layouts/Screens/components/addtion.dart';
 import 'package:udom_timetable/layouts/Screens/components/main_menu.dart';
 import 'package:udom_timetable/layouts/Screens/components/wallet.dart';
 import 'package:udom_timetable/layouts/Screens/components/xpbar.dart';
@@ -35,13 +37,35 @@ void _animatePages() {
       );
     }
   }
- 
+ bool adLoaded=false;
+    late BannerAd mybanner;
  @override
   void initState() {
     _pageController = PageController();
     _pageAnimationTimer =Timer.periodic(const Duration(seconds:5), (timer) {_animatePages(); });
     super.initState();
-  }
+    final BannerAdListener listene=BannerAdListener(
+  onAdLoaded: (ad) {
+    setState(() {
+      adLoaded=true;
+      print("ad loaded");
+    });
+  },
+  onAdFailedToLoad: (ad, error) {
+    print("add $ad erro $error");
+  },
+  onAdOpened: (ad) {
+    print("ad $ad is opened");
+  },
+) ; 
+     mybanner=BannerAd(size: AdSize.banner,
+     listener:listene,
+     adUnitId: Platform.isAndroid?'ca-app-pub-3940256099942544/6300978111':'ca-app-pub-3940256099942544/6300978111',
+     request: AdRequest());
+
+
+mybanner.load();
+}
 @override
   void dispose() {
     _pageAnimationTimer?.cancel();
@@ -56,6 +80,9 @@ void _animatePages() {
     }
     if(option=='Combines'){
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => AllCombine()));   
+    }
+      if(option=='translate'){
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => TranlateWord()));   
     }
          print(option);
   }
@@ -82,7 +109,7 @@ if(whichMode==Brightness.dark){
           appbar=Colors.black12;
       });
 }
-     List<String> options = ['Setting', 'Combines'];
+     List<String> options = ['Setting', 'Combines',"translate"];
     Size size=MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -138,7 +165,7 @@ if(whichMode==Brightness.dark){
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(children: const [
+                child: Column(children:  [
                   SizedBox(
                     height: 15,
                   ),
@@ -150,17 +177,14 @@ if(whichMode==Brightness.dark){
                   SizedBox(
                     height: 20,
                   ),
-                  XpBar(),
+                   XpBar(banner: mybanner, isLoaded: adLoaded,),
                   SizedBox(
                     height: 15,
                   ),
                   // Wallet(),
                 ]),
               ),
-              const Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Addition(),
-              ),
+             
               const SizedBox(
                 height: 20,
               ),

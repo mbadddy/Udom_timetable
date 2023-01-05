@@ -12,16 +12,48 @@ class Synchronize extends StatefulWidget {
 
 class _SynchronizeState extends State<Synchronize> {
   SharedPreferences? sharedPreferences;
-   String? favourate;
-  Future getPreferences() async{
+
+//
+bool? isSwitchedd;
+  bool isSwitched = false;  
+   bool? autoSwitched;
+  Future setSwitchOn(bool isSwitchedd)async{
+    sharedPreferences=await SharedPreferences.getInstance();
+    sharedPreferences!.setBool("syncSwiched", isSwitchedd);
+  }
+   Future getSwitchOn()async{
     sharedPreferences=await SharedPreferences.getInstance();
     setState(() {
-      favourate=sharedPreferences!.getString("college")!;
+      isSwitchedd=sharedPreferences!.getBool("syncSwiched");
+      autoSwitched=sharedPreferences!.getBool("autoSwiched");  
     });
   }
+  void toggleSwitch(bool value) {  
+  
+    if(isSwitched == false)  
+    {  
+      setState(() {  
+        isSwitched = true; 
+        setSwitchOn(isSwitched);
+        getSwitchOn(); 
+      });  
+    }  
+    else  
+    {  
+      setState(() {  
+        isSwitched = false;  
+        setSwitchOn(isSwitched);
+        getSwitchOn();
+      });  
+    } 
+  }  
+
+//
+
+
   @override
   void initState() {
-   getPreferences();
+   getSwitchOn();
     super.initState();
   }
   @override
@@ -35,6 +67,11 @@ if(whichMode==Brightness.dark){
           appbar=Colors.black12;
       });
      }
+     setState(() {
+       if(autoSwitched!=null && autoSwitched==true){
+        setSwitchOn(true);
+       }
+     });
     return Scaffold(
        appBar: AppBar(
 
@@ -46,8 +83,36 @@ if(whichMode==Brightness.dark){
         ],
         
       ),
-      body: Container(child:favourate==null?Center(child: Text("No Favourate Availbale Please Select"),): 
-    Center(child: Text("This is Synchronization for ${sharedPreferences!.getString("college")}"),),),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+                  Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Synchronize',
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.045,
+                ),
+              ),
+             Switch(
+                  onChanged: autoSwitched!=null && autoSwitched==true ? null: toggleSwitch,
+                value: autoSwitched!=null && autoSwitched==true ? true: isSwitchedd ?? isSwitched,  
+              activeColor: Colors.blue,  
+              activeTrackColor: Colors.yellow,  
+              inactiveThumbColor: Colors.redAccent,  
+              inactiveTrackColor: Colors.orange,  
+                
+              ),
+            ],
+          ),
+        ),
+        const Divider(),
+        ],
+      )
   
     );
   }

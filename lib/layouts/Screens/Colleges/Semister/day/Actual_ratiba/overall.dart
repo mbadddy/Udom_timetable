@@ -34,10 +34,12 @@ class _OverallAttendanceState extends State<OverallAttendance> {
   TimetableService service=TimetableService();
     late Future<Timetable> timetable;
     Future<int>? status;
+
     @override
   void initState() {
     all_timetable=Hive.box<List<String>>("timetable");
     getDaysData();
+ 
     // all_timetable!.deleteAll(all_timetable!.keys);
     filterFuction();
    timetable=service.fetchTimetable();
