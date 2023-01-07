@@ -231,11 +231,14 @@ if(whichMode==Brightness.dark){
        IconButton(
             onPressed: () {
               // method to show the search bar
-              showSearch(
+              if(coll!=null && coll!.isNotEmpty){
+             showSearch(
                 context: context,
                 // delegate to customize the search bar
                 delegate: CustomSearchDelegate(venues: venues, collg: colll!),
               );
+              }
+             
             },
             icon: const Icon(Icons.search),
           )
@@ -296,6 +299,7 @@ if(whichMode==Brightness.dark){
               trailing: Icon(Icons.arrow_forward_ios_outlined,size: 20,),
              title: Text(name),
              onTap: () {
+               Navigator.push(context, MaterialPageRoute(builder: (context) => SpecificVenue(venue: name, college: colll!,)));
                   },
              );
             }, 
@@ -309,14 +313,16 @@ if(whichMode==Brightness.dark){
               String name;
           
                 name=venues[index];
-              
+              // 
             return ListTile(
+              onTap: () {
+                 Navigator.push(context, MaterialPageRoute(builder: (context) => SpecificVenue(venue: name, college: colll!,)));
+                print("halloe .........");
+              },
               leading: Icon(Icons.class_),
               trailing: Icon(Icons.arrow_forward_ios_outlined,size: 20,),
              title: Text(name),
-             onTap: () {
-                 Navigator.push(context, MaterialPageRoute(builder: (context) => SpecificVenue(venue: name, college: colll!,)));
-                  },
+
              );
             }, 
             separatorBuilder: (context, index) => Divider(), 

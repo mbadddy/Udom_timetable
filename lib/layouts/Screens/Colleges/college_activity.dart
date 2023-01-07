@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+
 import 'package:flutter/material.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/programme.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/programmes.dart';
@@ -60,18 +61,21 @@ if(whichMode==Brightness.dark){
        IconButton(
             onPressed: () {
               // method to show the search bar
-              showSearch(
+            if(  Programe.programmes[0][widget.title]!=null){
+            showSearch(
                 context: context,
                 // delegate to customize the search bar
                 delegate: CustomSearchDelegate(title: widget.title),
               );
+            }
+             
             },
             icon: const Icon(Icons.search),
           )
         ],
         
       ),
-      body: Padding(padding: EdgeInsets.only(right: 10),
+      body: Programe.programmes[0][widget.title]==null?Center(child: Text("Released Soon"),):Padding(padding: EdgeInsets.only(right: 10),
       child: ListView.separated(
       shrinkWrap: true,
       physics: AlwaysScrollableScrollPhysics(),

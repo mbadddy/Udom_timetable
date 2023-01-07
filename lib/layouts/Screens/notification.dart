@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -91,6 +93,37 @@ restoreNotify(){
     });
   }
 }
+getAlarmProcess(minutes){
+  if(Platform.isAndroid){
+                                                    AndroidAlarmManager.periodic(const Duration(seconds: 60),1,callbackDispatcher,params: {
+    "combine":combine,
+    "notify":minutes,
+    "c_programes":c_progs,
+    "c_colleges":c_colleges,
+    "c_years":c_yrs,
+    "c_semister":c_sems,
+    "c_venues":c_venyus,
+    "c_days":c_dayss,
+    "c_t_from":c_time_froms,
+    "c_t_to":c_tymes,
+    "c_cozes":c_cozes,
+    "c_instructs":c_instructs
+   },rescheduleOnReboot: true,wakeup: true,exact: true);
+        AndroidAlarmManager.periodic(const Duration(seconds: 60),3,callBackExam,params: {
+    "exam":exam,
+    "notify":minutes,
+     "e_programes":e_progs,
+    "e_colleges":e_colleges,
+    "e_years":e_yrs,
+    "e_semister":e_sems,
+    "e_venues":e_venyus,
+    "e_days":e_dayss,
+    "e_t_from":e_time_froms,
+    "e_t_to":e_tymes,
+    "e_cozes":e_cozes,
+   },rescheduleOnReboot: true,wakeup: true,exact: true);
+  }
+}
  showMenu() {
     showModalBottomSheet(
         context: context,
@@ -149,33 +182,7 @@ restoreNotify(){
                                                       showMenu();
                                                       setNotification(minutes[i-1]);
                                                        getNotification();
-                                                        AndroidAlarmManager.periodic(const Duration(seconds: 60),1,callbackDispatcher,params: {
-    "combine":combine,
-    "notify":minutes[i-1],
-    "c_programes":c_progs,
-    "c_colleges":c_colleges,
-    "c_years":c_yrs,
-    "c_semister":c_sems,
-    "c_venues":c_venyus,
-    "c_days":c_dayss,
-    "c_t_from":c_time_froms,
-    "c_t_to":c_tymes,
-    "c_cozes":c_cozes,
-    "c_instructs":c_instructs
-   },rescheduleOnReboot: true,wakeup: true,exact: true);
-        AndroidAlarmManager.periodic(const Duration(seconds: 60),3,callBackExam,params: {
-    "exam":exam,
-    "notify":minutes[i-1],
-     "e_programes":e_progs,
-    "e_colleges":e_colleges,
-    "e_years":e_yrs,
-    "e_semister":e_sems,
-    "e_venues":e_venyus,
-    "e_days":e_dayss,
-    "e_t_from":e_time_froms,
-    "e_t_to":e_tymes,
-    "e_cozes":e_cozes,
-   },rescheduleOnReboot: true,wakeup: true,exact: true);
+                                                     getAlarmProcess(minutes[i-1]);
                                                       print("value ${_value}...............");
                                                     });
                                                   },

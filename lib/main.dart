@@ -38,7 +38,7 @@ void main() async{
    
   //storage
   WidgetsFlutterBinding.ensureInitialized();
-  await AndroidAlarmManager.initialize();
+ 
   Directory document=await getApplicationDocumentsDirectory();
   Hive.init(document.path);
   await Hive.openBox<String>("users");
@@ -52,7 +52,7 @@ void main() async{
    await NotificationService().setup();
    MobileAds.instance.initialize();
    //
-getHomeNotification();
+ 
   //end
   runApp(MyApp());
   Box<List<String>> all_timetable=Hive.box<List<String>>("timetable");
@@ -82,20 +82,7 @@ getHomeNotification();
          c_instructs=combinebox.get("instructors");
 
    bool? combine=sharedPreferences.getBool("favourate");
-      AndroidAlarmManager.periodic(const Duration(seconds: 60),1,callbackDispatcher,params: {
-    "combine":combine,
-    "notify":sharedPreferences.getInt("notify"),
-    "c_programes":c_progs,
-    "c_colleges":c_colleges,
-    "c_years":c_yrs,
-    "c_semister":c_sems,
-    "c_venues":c_venyus,
-    "c_days":c_dayss,
-    "c_t_from":c_time_froms,
-    "c_t_to":c_tymes,
-    "c_cozes":c_cozes,
-    "c_instructs":c_instructs
-   },rescheduleOnReboot: true,wakeup: true,exact: true);
+     
    //combine
    //day
   List<String>? coll;
@@ -119,6 +106,41 @@ getHomeNotification();
        List<String>? yerrrs=all_timetable.get("years");
        List<String>? semmms=all_timetable.get("semisters");   
 
+
+   //end
+  
+//exam
+Box<List<String>> exambox=Hive.box<List<String>>("Exams");
+       bool? myfavourate=sharedPreferences.getBool("e_favourate");
+      List<String>? e_colleges=exambox.get("e_colleges"); 
+       List<String>?  e_progs=combinebox.get("e_programmes"); 
+         List<String>? e_yrs=combinebox.get("e_years"); 
+         List<String>? e_sems=combinebox.get("e_semisters"); 
+         List<String>? e_venyus=combinebox.get("e_venues"); 
+         List<String>? e_dayss=combinebox.get("e_days"); 
+         List<String>? e_time_froms=combinebox.get("e_time_from"); 
+         List<String>? e_tymes=combinebox.get("e_time_to"); 
+         List<String>? e_cozes=combinebox.get("e_courses"); 
+ 
+//end exam
+   if(Platform.isAndroid){
+    await AndroidAlarmManager.initialize();
+    getHomeNotification();
+     AndroidAlarmManager.periodic(const Duration(seconds: 60),1,callbackDispatcher,params: {
+    "combine":combine,
+    "notify":sharedPreferences.getInt("notify"),
+    "c_programes":c_progs,
+    "c_colleges":c_colleges,
+    "c_years":c_yrs,
+    "c_semister":c_sems,
+    "c_venues":c_venyus,
+    "c_days":c_dayss,
+    "c_t_from":c_time_froms,
+    "c_t_to":c_tymes,
+    "c_cozes":c_cozes,
+    "c_instructs":c_instructs
+   },rescheduleOnReboot: true,wakeup: true,exact: true);
+
    AndroidAlarmManager.periodic(const Duration(seconds: 60),2,callBackDyDispacher,params: {
     "d_programes":prog,
     "d_colleges":coll,
@@ -138,21 +160,8 @@ getHomeNotification();
 
     "notify":sharedPreferences.getInt("notify")
    },rescheduleOnReboot: true,wakeup: true,exact: true);
-   //end
-  
-//exam
-Box<List<String>> exambox=Hive.box<List<String>>("Exams");
-       bool? myfavourate=sharedPreferences.getBool("e_favourate");
-      List<String>? e_colleges=exambox.get("e_colleges"); 
-       List<String>?  e_progs=combinebox.get("e_programmes"); 
-         List<String>? e_yrs=combinebox.get("e_years"); 
-         List<String>? e_sems=combinebox.get("e_semisters"); 
-         List<String>? e_venyus=combinebox.get("e_venues"); 
-         List<String>? e_dayss=combinebox.get("e_days"); 
-         List<String>? e_time_froms=combinebox.get("e_time_from"); 
-         List<String>? e_tymes=combinebox.get("e_time_to"); 
-         List<String>? e_cozes=combinebox.get("e_courses"); 
-     AndroidAlarmManager.periodic(const Duration(seconds: 60),3,callBackExam,params: {
+
+    AndroidAlarmManager.periodic(const Duration(seconds: 60),3,callBackExam,params: {
     "exam":myfavourate,
     "notify":sharedPreferences.getInt("notify"),
      "e_programes":e_progs,
@@ -165,11 +174,13 @@ Box<List<String>> exambox=Hive.box<List<String>>("Exams");
     "e_t_to":e_tymes,
     "e_cozes":e_cozes,
    },rescheduleOnReboot: true,wakeup: true,exact: true);
-//end exam
-
-      if(sharedPreferences.getInt("notify")==null){
+   
+   if(sharedPreferences.getInt("notify")==null){
         AndroidAlarmManager.cancel(1);
       }  
+
+    }
+   
       
 
 }

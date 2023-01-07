@@ -40,7 +40,8 @@ Box<String>? arabic;
    swahili=Hive.box<String>("swahili");
    france=Hive.box<String>("arabic");
    arabic=Hive.box<String>("france");
-   swahili!.deleteAll(swahili!.keys);
+  //  arabic!.deleteAll(arabic!.keys);
+  //  swahili!.deleteAll(swahili!.keys);
    generateNouns() ;
     super.initState();
   }
@@ -52,7 +53,9 @@ Box<String>? arabic;
  String result='';
   translate(value)async{
 
- if(from.value!=null && to.value!=null && source.value!=null){
+ if(from.value!=null && to.value!=null && source.text.isNotEmpty){
+    readData('swahili');
+
   if(from.value==to.value){
    print("error....................      .......");
   }
@@ -71,7 +74,9 @@ Box<String>? arabic;
           for(var w=0;w<nounsList.length;w++){
            
            var translated=await translator.translate(nounsList[w],to:"sw");
+
            swahili!.put(nounsList[w].toLowerCase(), translated.toString().toLowerCase());
+           writeData("swahili", '"${nounsList[w].toLowerCase()}":"${translated.toString().toLowerCase()}"');
            setState(() {
             progress++; 
            });
@@ -83,25 +88,26 @@ Box<String>? arabic;
            });
          }
          else{
-        if(swahili!.get(source.value.toString().toLowerCase())!=null){
+        if(swahili!.get(source.text.toString().toLowerCase())!=null){
            setState(() {
              state=2;
-             result='${swahili!.get(source.value.toString().toLowerCase())}';
+             result='${swahili!.get(source.text.toString().toLowerCase())}';
            });
          }
          else{
-
-          var translated=await translator.translate(source.value.toString(),to:"sw");
-          swahili!.put(source.value.toString().toLowerCase(), translated.toString().toLowerCase());
-          print(swahili!.length);
+    
+          var translated=await translator.translate(source.text.toString(),to:"sw");
+          swahili!.put(source.text.toLowerCase(), translated.toString().toLowerCase());
+           writeData("swahili", '"${source.text.toLowerCase()}":"${translated.toString().toLowerCase()}"');
+          print("${translated}......................");
           setState(() {
           state=2;
            });
          
-         if(swahili!.get(source.value.toString().toLowerCase())!=null){
-           print('${source.value} is ${swahili!.get(source.value.toString().toLowerCase())}');
+         if(swahili!.get(source.text.toString().toLowerCase())!=null){
+           print('${source.text} is ${swahili!.get(source.text.toString().toLowerCase())}');
            setState(() {
-              result='${swahili!.get(source.value.toString().toLowerCase())}';
+              result='${swahili!.get(source.text.toString().toLowerCase())}';
            });
          }
          else{
@@ -117,7 +123,58 @@ Box<String>? arabic;
        
        }
        else if(to.value=="Arabic"){
+       setState(() {
+          state=1;
+        });
+       
+         if(arabic!.isEmpty){
+            print("translating..............");
+          for(var w=0;w<nounsList.length;w++){
+           
+           var translated=await translator.translate(nounsList[w],to:"ar");
 
+           arabic!.put(nounsList[w].toLowerCase(), translated.toString().toLowerCase());
+            writeData("arabic", '"${nounsList[w].toLowerCase()}":"${translated.toString().toLowerCase()}"');
+           setState(() {
+            progress++; 
+           });
+           
+           
+         }
+         setState(() {
+          state=2;
+           });
+         }
+         else{
+        if(arabic!.get(source.text.toString().toLowerCase())!=null){
+           setState(() {
+             state=2;
+             result='${arabic!.get(source.text.toString().toLowerCase())}';
+           });
+         }
+         else{
+          var translated=await translator.translate(source.text.toString(),to:"ar");
+          arabic!.put(source.text.toLowerCase(), translated.toString().toLowerCase());
+           writeData("arabic", '"${source.text.toLowerCase()}":"${translated.toString().toLowerCase()}"');
+          print("${translated}......................");
+          setState(() {
+          state=2;
+           });
+         
+         if(arabic!.get(source.text.toString().toLowerCase())!=null){
+           print('${source.text} is ${arabic!.get(source.text.toString().toLowerCase())}');
+           setState(() {
+              result='${arabic!.get(source.text.toString().toLowerCase())}';
+           });
+         }
+         else{
+          setState(() {
+            result="failed to translate";
+          });
+           print("error on translate....................      .......");
+         }
+         }
+         }
        }
   }
   }
@@ -127,7 +184,8 @@ Box<String>? arabic;
   }
   //writing to a file
   Future<String> get local_path async{
-    final directory=await getApplicationDocumentsDirectory();
+    final directory=await getExternalStorageDirectory();
+    print(directory!.path);
     return directory.path;
   }
   Future<File> _localFile(file) async{
@@ -135,19 +193,20 @@ Box<String>? arabic;
     return File("${path}/$file.txt");
     
   }
-  Future<int> readData(file) async{
+  Future<String> readData(file) async{
     try {
       final filee=await _localFile(file);
       String contents=await filee.readAsString();
-
-      return int.parse(contents);
+      print('datas  ...${contents}');
+      return contents;
     } catch (e) {
-      return 0;
+      return '0';
     }
   }
   Future<File> writeData(filee,data) async{
+    print("writing file......... ");
     final file=await _localFile(filee);
-    return file.writeAsString("$data");
+    return file.writeAsString("$data",mode: FileMode.append);
   }
 
 
