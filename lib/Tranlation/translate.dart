@@ -21,7 +21,7 @@ class _TranlateWordState extends State<TranlateWord> {
   var wordss=0;
 
   generateNouns() {
-    nouns.take(500).forEach((element) {
+    nouns.take(2000).forEach((element) {
       nounsList.add(element.toString());
     });
   }
@@ -40,8 +40,8 @@ Box<String>? arabic;
    swahili=Hive.box<String>("swahili");
    france=Hive.box<String>("arabic");
    arabic=Hive.box<String>("france");
-  //  arabic!.deleteAll(arabic!.keys);
-  //  swahili!.deleteAll(swahili!.keys);
+   arabic!.deleteAll(arabic!.keys);
+   swahili!.deleteAll(swahili!.keys);
    generateNouns() ;
     super.initState();
   }

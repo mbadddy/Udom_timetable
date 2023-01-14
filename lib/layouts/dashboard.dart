@@ -106,9 +106,9 @@ if(whichMode==Brightness.dark){
               label: "Venue"),
        
           BottomNavigationBarItem(
-              icon: Icon(Icons.sync),
-              activeIcon: Icon(Icons.sync),
-              label: "Sync"),
+              icon: Icon(Icons.post_add_rounded),
+              activeIcon: Icon(Icons.post_add_rounded),
+              label: "Posts"),
           BottomNavigationBarItem(
               icon: Icon(Icons.notifications),
               activeIcon: Icon(Icons.notifications),

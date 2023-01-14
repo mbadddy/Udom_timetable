@@ -57,6 +57,10 @@ dependencies:
   google_mobile_ads: ^2.3.0
   english_words: ^4.0.0
   translator: ^0.1.7
+  rename: ^2.1.1
+  font_awesome_flutter: ^10.3.0
+  simple_animations: ^4.0.0
+  image_picker: ^0.8.6
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -86,7 +90,10 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    - assets/
+    - assets/images/udom1.jpg
+    - assets/images/
+    - assets/images/udom2.jpg
+    - assets/images/udom3.jpg
     - assets/images/cive.jpg
     - assets/images/coed.jpg
     - assets/images/earth.jpg

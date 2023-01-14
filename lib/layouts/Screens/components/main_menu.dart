@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:udom_timetable/layouts/Screens/Colleges/college_activity.dart';
 
 class MainMenu extends StatelessWidget {
   const MainMenu({Key? key}) : super(key: key);
@@ -26,7 +27,7 @@ class MainMenu extends StatelessWidget {
               Column(
                 children: [
                   GestureDetector(
-                    onTap: () => print('cive'),
+                    onTap: () =>  Navigator.push(context, MaterialPageRoute(builder: (context) => Collegee(title: "CIVE"),)),
                     child: Container(
                       decoration: BoxDecoration(
                           color: Colors.transparent,
@@ -55,7 +56,7 @@ class MainMenu extends StatelessWidget {
               Column(
                 children: [
                   GestureDetector(
-                    onTap: () => print('tiba'),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Collegee(title: "TIBA"),)),
                     child: Container(
                       decoration: BoxDecoration(
                           color: Colors.transparent,
@@ -81,7 +82,7 @@ class MainMenu extends StatelessWidget {
               Column(
                 children: [
                   GestureDetector(
-                    onTap: () => print('Humanity'),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Collegee(title: "HUMANITY"),)),
                     child: Container(
                       decoration: BoxDecoration(
                           color: Colors.transparent,
@@ -109,7 +110,7 @@ class MainMenu extends StatelessWidget {
               Column(
                 children: [
                   GestureDetector(
-                    onTap: () => print('CNMS'),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Collegee(title: "CNMS"),)),
                     child: Container(
                       decoration: BoxDecoration(
                       color: Colors.transparent,
@@ -146,7 +147,7 @@ class MainMenu extends StatelessWidget {
               Column(
                 children: [
                   GestureDetector(
-                    onTap: () => print('Science'),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Collegee(title: "SCIENCE"),)),
                     child: Container(
                       decoration: BoxDecoration(
                           color: Colors.transparent,
@@ -172,7 +173,7 @@ class MainMenu extends StatelessWidget {
               Column(
                 children: [
                   GestureDetector(
-                    onTap: () => print('Coed'),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Collegee(title: "COED"),)),
                     child: Container(
                       decoration: BoxDecoration(
                           color: Colors.transparent,
@@ -198,7 +199,7 @@ class MainMenu extends StatelessWidget {
               Column(
                 children: [
                   GestureDetector(
-                    onTap: () => print('social'),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Collegee(title: "SOCIAL"),)),
                     child: Container(
                       decoration: BoxDecoration(
                           color: Colors.transparent,
@@ -224,7 +225,7 @@ class MainMenu extends StatelessWidget {
               Column(
                 children: [
                   GestureDetector(
-                    onTap: () => print('More'),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Collegee(title: "more"),)),
                     child: Container(
                         decoration: BoxDecoration(
                           color: Colors.transparent,

@@ -19,19 +19,12 @@ import 'package:udom_timetable/layouts/Screens/Colors/themes.dart';
 import 'package:udom_timetable/layouts/Screens/notification/notification.dart';
 import 'package:udom_timetable/layouts/Screens/notification/promodoroTimer.dart';
 import 'package:udom_timetable/layouts/splashscreen.dart';
-import 'package:udom_timetable/services/Translation/Locales.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:udom_timetable/services/Translation/locale_provider.dart';
+
 import 'package:shared_preferences_android/shared_preferences_android.dart';
 import 'package:shared_preferences_ios/shared_preferences_ios.dart';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-//flutter_background_service.
-// Geofencing   flutter_geofence both
-// Alarm Manager
-// JobService Class
-// Firebase JobDispatcher
-// Work Manager
+
 bool? combinee;
 int? notifyy;
 void main() async{
@@ -496,9 +489,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(providers: [
          ChangeNotifierProvider(
       create:  (_) => ModelTheme()) ,
-       ChangeNotifierProvider(
-      create:  (_) => LocaleProvider())
-    ,
+       
     ],
     child: Consumer<ModelTheme>(
       builder: (context, ModelTheme value,
@@ -508,17 +499,11 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-       var provider=Provider.of<LocaleProvider>(context);
+      
 
           return GetMaterialApp(
             
-            locale: provider.locale,
-            supportedLocales: L10n.all,
-            localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate
-            ],
+           
             darkTheme: ThemeData.dark(),
             
             themeMode: ThemeMode.system,

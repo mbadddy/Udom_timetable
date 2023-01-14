@@ -88,14 +88,9 @@ if(whichMode==Brightness.dark){
             Navigator.push(context, MaterialPageRoute(builder: (context) => Programme(programe: category['title'], year: category['year'], subtitle: category['subtitle'], college:widget.title,),));
           },
           contentPadding: EdgeInsets.all(5),
-          leading: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(60)),
-                      height: 50,
-                      width: 50,
-                      child:Icon(Icons.school),
-                    ),
+          leading: CircleAvatar(
+            backgroundColor: appbar,
+            child: Text(category['title'].toString().substring(4,6))),
           title: Text(category['title']),
           subtitle: Text(category["subtitle"]),
           trailing: Icon(Icons.arrow_forward_ios_outlined,size: 20,),

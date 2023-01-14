@@ -95,7 +95,7 @@ restoreNotify(){
 }
 getAlarmProcess(minutes){
   if(Platform.isAndroid){
-                                                    AndroidAlarmManager.periodic(const Duration(seconds: 60),1,callbackDispatcher,params: {
+      AndroidAlarmManager.periodic(const Duration(seconds: 60),1,callbackDispatcher,params: {
     "combine":combine,
     "notify":minutes,
     "c_programes":c_progs,
