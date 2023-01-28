@@ -4,33 +4,31 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
-
+import 'package:date_time_picker/date_time_picker.dart';
+import 'package:udom_timetable/layouts/advertisements/blogs/services/create_blog.dart';
 
 class CreateBlog extends StatefulWidget {
-  const CreateBlog({Key? key}) : super(key: key);
+  final String refresh_token;
+  final String token;
+  const CreateBlog({Key? key, required this.refresh_token, required this.token}) : super(key: key);
 
   @override
   State<CreateBlog> createState() => _CreateBlogState();
 }
 
 class _CreateBlogState extends State<CreateBlog> {
-  File? image;
-  String? base64Image;
-  bool? showFeatureImage = false;
-  Image? featureImage;
-   String? author;
-  File? author_photo;
-  Image? author_image;
 
-  String? title;
-  String? body;
-  List<String>? categories = ["Blog","Article"];
-  String? categoryDropdownValue;
 
+
+ 
+  
   final TextEditingController titleController = TextEditingController();
   final TextEditingController bodyController = TextEditingController();
   final TextEditingController authorController = TextEditingController();
+   String? date;
+  final TextEditingController venueController = TextEditingController();
     var _author_photo;
     var _blog_photo;
    final ImagePicker picker = ImagePicker();
@@ -60,37 +58,33 @@ class _CreateBlogState extends State<CreateBlog> {
           _blog_photo=File(photo!.path);
         });
   }
-  void _pickCameraImage() async {
- 
-
-    XFile? photo = await picker.pickImage(source: ImageSource.camera,maxWidth: 400,imageQuality: 50);
 
 
-    if (photo != null) {
-   
-      image = File(photo.path.toString());
-      List<int> imageBytes = File(photo.path.toString()).readAsBytesSync();
-      base64Image = base64Encode(imageBytes);
-
+SharedPreferences? sharedPreferences;
+  Future removeTokens()async{
+      sharedPreferences=await SharedPreferences.getInstance();
       setState(() {
-        showFeatureImage = !showFeatureImage!;
-        featureImage = Image.memory(base64Decode(base64Image!));
+        sharedPreferences!.remove("token");
+      sharedPreferences!.remove("token_refresh");
       });
-    } else {
-      // User canceled the picker
-    }
+      
   }
-
-
-    
-
+  Future getTokens()async{
+    sharedPreferences=await SharedPreferences.getInstance();
+    setState(() {
+    sharedPreferences!.getString("token");
+    sharedPreferences!.getString("token_refresh");
+    });
+  }
   @override
   void initState() {
+    getTokens();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+     getTokens();
     Color appbar=appColr;
          Color appbar2=appColr;
          Color log_page=Colors.white;
@@ -109,8 +103,7 @@ if(whichMode==Brightness.dark){
           input=Colors.black54;
       });
 }
-    return SafeArea(
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           backgroundColor: appbar,
           centerTitle: true,
@@ -122,6 +115,13 @@ if(whichMode==Brightness.dark){
             },
             icon: Icon(Icons.arrow_back_ios, color: Colors.white),
           ),
+          actions: [
+            IconButton(onPressed: ()async {
+              await removeTokens();
+              await getTokens();
+              Navigator.pop(context);
+            }, icon: Icon(Icons.logout))
+          ],
         ),
         body: Container(
           margin: const EdgeInsets.all(10),
@@ -139,9 +139,7 @@ if(whichMode==Brightness.dark){
                       Expanded(
                         child: TextField(
                           controller: authorController,
-                          onChanged: (text) {
-                            title = text;
-                          },
+                          
                         ),
                       )
                     ],
@@ -197,9 +195,7 @@ if(whichMode==Brightness.dark){
                       Expanded(
                         child: TextField(
                           controller: titleController,
-                          onChanged: (text) {
-                            title = text;
-                          },
+                         
                         ),
                       )
                     ],
@@ -213,46 +209,67 @@ if(whichMode==Brightness.dark){
                       const Text('Body'),
                       TextField(
                         controller: bodyController,
-                        onChanged: (text) {
-                          body = text;
-                        },
+                    
                         maxLines: 10,
                       ),
                     ],
                   ),
                 ),
-                Padding(
+                SizedBox(height: 20,),
+                Container(
+                  height: 80,
                   padding: const EdgeInsets.all(8.0),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Category'),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      DropdownButton(
-                        onChanged: (String? value) {
-                          setState(() {
-                            categoryDropdownValue = value;
-                          });
-                        },
-                        value: categoryDropdownValue,
-                        items: categories!
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
+                      const Text('Event Date'),
+                      Expanded(
+                         child: DateTimePicker(
+                              initialValue: '',
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                              dateLabelText: 'Date',
+                              onChanged: (value) {
+                                setState(() {
+                                  date=value;
+                                });
+                              },
+                              validator: (val) {
+                                print(val);
+                                return null;
+                              },
+                              onSaved: (val) => print(val),
+                            )
+                      )
                     ],
                   ),
                 ),
+                SizedBox(height: 20,),
+                Container(
+                  height: 80,
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Venue'),
+                      Expanded(
+                        child: TextField(
+                          controller: venueController,
+                          
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20,),
+               
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('Feature Image'),
+                      SizedBox(height: 15,),
                                 Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
@@ -299,30 +316,18 @@ if(whichMode==Brightness.dark){
                     children: [
                       TextButton(
                           onPressed: () {
-                     
-
-                            if (title!.isNotEmpty &&
-                                body!.isNotEmpty &&
-                                categoryDropdownValue!.isNotEmpty &&
-                                base64Image!.isNotEmpty) {
-                              final data = {
-                                "title": title,
-                                "body": body,
-                                "category": categoryDropdownValue,
-                                "image": base64Image,
-                                "owner": '',
-                              };
-
+                            print("file ${_author_photo}");
+                              // CreateBlogg().create( titleController.text, bodyController.text,
+                              //  venueController.text, date, _, blog_photo)
+                               if (titleController.text.isNotEmpty &&
+                                bodyController.text.isNotEmpty &&
+                                date!.isNotEmpty &&
+                                _author_photo!.isNotEmpty && _blog_photo.isNotEmpty) {
                                   
-
                                 titleController.clear();
                                 bodyController.clear();
-                                base64Image = "";
-
-                                setState(() {
-                                  showFeatureImage = false;
-                                });
-                       
+                                venueController.clear();
+                                authorController.clear();  
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -346,7 +351,6 @@ if(whichMode==Brightness.dark){
             ),
           ),
         ),
-      ),
     );
   }
 }

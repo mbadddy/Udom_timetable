@@ -38,6 +38,7 @@ void main() async{
   await Hive.openBox<List<String>>("combine");
   await Hive.openBox<List<String>>("Exams");
   await Hive.openBox<List<String>>("timetable");
+   
   await Hive.openBox<String>("swahili");
   await Hive.openBox<String>("arabic");
   await Hive.openBox<String>("france");

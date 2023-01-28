@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/fade_animation.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_create_blog.dart';
+import 'package:udom_timetable/layouts/advertisements/blogs/services/login.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,6 +13,31 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+    SharedPreferences? sharedPreferences;
+  var token;
+  var token_refresh;
+  var attempting=false;
+  Future getTokens()async{
+    sharedPreferences=await SharedPreferences.getInstance();
+    setState(() {
+      token=sharedPreferences!.getString("token");
+      token_refresh=sharedPreferences!.getString("token_refresh");
+    });
+  }
+    Future setTokens(tokenn,token_refreshh)async{
+    sharedPreferences=await SharedPreferences.getInstance();
+             sharedPreferences!.setString("token",tokenn);
+             sharedPreferences!.setString("token_refresh",token_refreshh);
+             getTokens();
+     }
+     @override
+  void initState() {
+        getTokens();
+    super.initState();
+  }
+  TextEditingController username=TextEditingController();
+  TextEditingController password=TextEditingController();
+  var message='';
   @override
   Widget build(BuildContext context) {
          Color appbar=appColr;
@@ -31,6 +58,10 @@ if(whichMode==Brightness.dark){
           input=Colors.black54;
       });
 }
+ getTokens();
+if(token!=null){
+  print("token... $token");
+}
     return Scaffold(
       appBar: AppBar(backgroundColor: appbar,
       leading: IconButton(onPressed: () {
@@ -49,9 +80,10 @@ if(whichMode==Brightness.dark){
             ])),
         child: Column(
           children: [
-           
+            Padding(padding: EdgeInsets.all(20),
+            child: Text(message),),
             Container(
-                margin: const EdgeInsets.only(top: 50),
+                margin: const EdgeInsets.only(top: 40),
                 child: const FadeAnimation(
                   2,
                   Text(
@@ -123,9 +155,10 @@ if(whichMode==Brightness.dark){
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10),
                                       child: TextFormField(
+                                        controller: username,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
-                                          label: Text(" E-mail ..."),
+                                          label: Text(" Username ..."),
                                           border: InputBorder.none,
                                         ),
                                       ),
@@ -163,6 +196,7 @@ if(whichMode==Brightness.dark){
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10),
                                       child: TextFormField(
+                                        controller: password,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
                                           label: Text(" Password ..."),
@@ -180,8 +214,48 @@ if(whichMode==Brightness.dark){
                         FadeAnimation(
                           2,
                           ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateBlog(),));
+                            onPressed: ()async {
+                              var temp_username;
+                              var temp_pass;
+                              setState(() {
+                              attempting=true;
+                                temp_username=username.text;
+                                temp_pass=password.text;
+                              username.text='';
+                              password.text='';
+                              });
+                             
+                              if(token==null || token_refresh==null){
+                              List<String>? response=await LoginService().login(temp_username, temp_pass);
+                             
+                               if(response==null){
+                                 setState(() {
+                                   message="connection problem";
+                                   attempting=false;
+                                 });
+                                }
+                                else if(response[0]=='forbidden'){
+                                  setState(() {
+                                      message="please contact administrator";
+                                        attempting=false;
+                                  });
+                                }
+                                else{
+                                 
+                                  setState(() {
+                                  setTokens(response[0], response[1]);
+                                  getTokens();
+                                  attempting=false;
+                                  });
+                                 
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateBlog(refresh_token: response[1], token: response[0],),));
+                                }
+                              }
+                              else{
+
+                              }
+                               
+                              
                             },
                             style: ElevatedButton.styleFrom(
                                 onPrimary: appbar,
@@ -201,13 +275,13 @@ if(whichMode==Brightness.dark){
                                 width: 200,
                                 height: 50,
                                 alignment: Alignment.center,
-                                child: const Text(
+                                child: attempting==false? const Text(
                                   'Login',
                                   style: TextStyle(
                                     fontSize: 30,
                                     color: Colors.white,
                                   ),
-                                ),
+                                ):const CircularProgressIndicator(),
                               ),
                             ),
                           ),
