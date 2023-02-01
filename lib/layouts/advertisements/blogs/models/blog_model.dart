@@ -18,6 +18,8 @@ class Blog {
     required this.created_at,
     required this.content
   });
+
+  static fromMap(Map<String, dynamic> Function() data) {}
 }
 
 final List<Blog> blogs = [

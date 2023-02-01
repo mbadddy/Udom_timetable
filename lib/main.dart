@@ -24,21 +24,22 @@ import 'package:shared_preferences_android/shared_preferences_android.dart';
 import 'package:shared_preferences_ios/shared_preferences_ios.dart';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 bool? combinee;
 int? notifyy;
 void main() async{
    
   //storage
   WidgetsFlutterBinding.ensureInitialized();
- 
+ await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
   Directory document=await getApplicationDocumentsDirectory();
   Hive.init(document.path);
   await Hive.openBox<String>("users");
   await Hive.openBox<List<String>>("combine");
   await Hive.openBox<List<String>>("Exams");
   await Hive.openBox<List<String>>("timetable");
-   
+  await Hive.openBox<List<String>>("del_docs");
   await Hive.openBox<String>("swahili");
   await Hive.openBox<String>("arabic");
   await Hive.openBox<String>("france");
