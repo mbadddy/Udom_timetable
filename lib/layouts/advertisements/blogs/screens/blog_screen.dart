@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 
 import 'package:udom_timetable/layouts/advertisements/blogs/models/blog_model.dart';
 
@@ -31,9 +32,21 @@ class _BlogScreenState extends State<BlogScreen> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.45,
                   child: ClipRRect(
-                    child: Image(
-                      image: NetworkImage(widget.blog["blog"]),
-                      fit: BoxFit.cover,
+                    child: Image.network(
+                      "${widget.blog['blog']}",
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: appColr,
+                          alignment: Alignment.center,
+                          child: Center(
+                            child: const Text(
+                              'network error!',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -193,8 +206,7 @@ class _BlogScreenState extends State<BlogScreen> {
                   Row(
                     children: <Widget>[
                       CircleAvatar(
-                        backgroundImage:
-                            NetworkImage(widget.blog["user"]),
+                        backgroundImage: NetworkImage(widget.blog["user"]),
                         radius: 28.0,
                       ),
                       SizedBox(width: 10.0),
@@ -211,8 +223,9 @@ class _BlogScreenState extends State<BlogScreen> {
                   Expanded(
                       child: Padding(
                     padding: EdgeInsets.only(bottom: 15),
-                    child: Text("Event date ${widget.blog["date"]}, venue ${widget.blog["venue"]}. \n"+
-                     "   ${widget.blog["body"]}",
+                    child: Text(
+                      "Event date ${widget.blog["date"]}, venue ${widget.blog["venue"]}. \n" +
+                          "   ${widget.blog["body"]}",
                       style: TextStyle(
                           fontSize: 18.0, color: Colors.grey, letterSpacing: 1),
                     ),

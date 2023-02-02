@@ -3,14 +3,17 @@ import 'dart:io';
 import 'package:checkmark/checkmark.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart' as storage;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import "package:http/http.dart" as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/animated/dialogbox.dart';
+
 // Import the plugin
 import '../modal/blog.dart';
 
@@ -22,6 +25,28 @@ class MyPosts extends StatefulWidget {
 }
 
 class _MyPostsState extends State<MyPosts> {
+       late final dirr; 
+  
+  addFile()async{
+    dirr=await getExternalStorageDirectories();
+  }
+    Future<String> get local_path async{
+    final directory=await getExternalStorageDirectory();
+    return directory!.path;
+  }
+
+  Future<File> _localFile(file) async{
+    final path=await local_path;
+    return File("${path}/$file");
+    
+  }
+
+  Future<void> _fileFromImageUrl(blogurl,doc_id) async {
+      final bogresponse = await http.get(Uri.parse('$blogurl'));
+
+     final blogfile=await _localFile("${doc_id}blog.png");
+    blogfile.writeAsBytesSync(bogresponse.bodyBytes);
+  }
   TextEditingController e_title = TextEditingController();
   TextEditingController e_body = TextEditingController();
   TextEditingController e_author = TextEditingController();
@@ -38,6 +63,7 @@ class _MyPostsState extends State<MyPosts> {
   Box<List<String>>? deleted;
   @override
   void initState() {
+    addFile();
     deleted = Hive.box<List<String>>("del_docs");
     uid = FirebaseAuth.instance.currentUser!.uid;
     super.initState();
@@ -88,6 +114,10 @@ class _MyPostsState extends State<MyPosts> {
             }
 
             if (snapshot.hasData) {
+                for(var blg in snapshot.data!.docs){
+                     _fileFromImageUrl(blg["blog"],blg["doc_id"]);
+
+                }
               return Container(
                 color: log_page,
                 child: ListView(children: [
@@ -124,10 +154,7 @@ class _MyPostsState extends State<MyPosts> {
                                         child: ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(10.0),
-                                          child: Image.network(
-                                            '${blog['blog']}',
-                                            fit: BoxFit.cover,
-                                          ),
+                                          child:Image.file(File("${dirr.path}/${blog['doc_id']}blog.png"))
                                         ),
                                       ),
                                       Container(
@@ -248,7 +275,7 @@ class _MyPostsState extends State<MyPosts> {
                                                     ),
                                                     SizedBox(width: 5.0),
                                                     Text(
-                                                      "7k Views",
+                                                      "${blog['viewers']} Views",
                                                       style: TextStyle(
                                                         color: Colors.grey,
                                                       ),

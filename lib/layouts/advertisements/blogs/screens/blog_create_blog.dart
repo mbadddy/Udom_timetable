@@ -5,8 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/posts.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/services/create_blog.dart';
@@ -23,6 +21,7 @@ class _CreateBlogState extends State<CreateBlog> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController bodyController = TextEditingController();
   final TextEditingController authorController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
   String? date;
   final TextEditingController venueController = TextEditingController();
   var _author_photo;
@@ -109,9 +108,20 @@ class _CreateBlogState extends State<CreateBlog> {
         actions: [
           IconButton(
               onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pop(context);
-              },
+              try {
+                  await FirebaseAuth.instance.signOut();
+                   Navigator.pop(context);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('connection problem while logging out'),
+                                  duration: Duration(milliseconds: 1500),
+                                  width: 280.0,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+              }
+            },
               icon: Icon(Icons.logout)),
           PopupMenuButton(
             position: PopupMenuPosition.under,
@@ -233,7 +243,7 @@ class _CreateBlogState extends State<CreateBlog> {
                     const Text('Event Date'),
                     Expanded(
                         child: DateTimePicker(
-                      initialValue: '',
+  controller: dateController,
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                       dateLabelText: 'Date',
@@ -334,7 +344,7 @@ class _CreateBlogState extends State<CreateBlog> {
                           //  venueController.text, date, _, blog_photo)
                           if (titleController.text.isNotEmpty &&
                               bodyController.text.isNotEmpty &&
-                              date!.isNotEmpty) {
+                              date!.isNotEmpty && _author_photo!=null && _blog_photo!=null) {
                             bool answer = await CreateBlogg().create(
                                 titleController.text,
                                 authorController.text,
@@ -342,9 +352,7 @@ class _CreateBlogState extends State<CreateBlog> {
                                 venueController.text,
                                 date,
                                 _author_photo.path,
-                                basename(_author_photo.path).toString(),
                                 _blog_photo.path,
-                                basename(_blog_photo.path).toString(),
                                 deletedd,
                                 context);
                             setState(() {
@@ -354,6 +362,7 @@ class _CreateBlogState extends State<CreateBlog> {
                             bodyController.clear();
                             venueController.clear();
                             authorController.clear();
+                            dateController.clear();
                             setState(() {
                               _author_photo = null;
                               _blog_photo = null;
@@ -365,7 +374,7 @@ class _CreateBlogState extends State<CreateBlog> {
                               executed = true;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('unknown error had occured!.'),
+                                  content: Text('all fields are required!.'),
                                   duration: Duration(milliseconds: 1500),
                                   width: 280.0,
                                   behavior: SnackBarBehavior.floating,

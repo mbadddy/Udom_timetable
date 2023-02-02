@@ -318,6 +318,7 @@ class _LoginPageState extends State<LoginPage> {
         await FirebaseAuth.instance.currentUser?.reload();
         if(FirebaseAuth.instance.currentUser!=null){
        setState(() {
+          attempting=false;
           isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
         });
         if (isEmailVerified) {
@@ -343,6 +344,9 @@ class _LoginPageState extends State<LoginPage> {
               .push(MaterialPageRoute(builder: (context) => CreateBlog()));
        
       }
+      setState(() {
+          attempting=false;
+      });
       } on FirebaseAuthException catch (e) {
         setState(() {
           attempting=false;

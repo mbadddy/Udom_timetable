@@ -1,14 +1,21 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:platform_device_id/platform_device_id.dart';
+import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
+import "package:http/http.dart" as http;
 
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_screen.dart';
 
-class BlogPosts extends StatelessWidget {
+class BlogPosts extends StatefulWidget {
   Color backgrnd;
   Color b_white;
   Stream<QuerySnapshot<Map<String, dynamic>>> myblogs;
@@ -18,12 +25,47 @@ class BlogPosts extends StatelessWidget {
     required this.b_white,
     required this.myblogs,
   }) : super(key: key);
+
+  @override
+  State<BlogPosts> createState() => _BlogPostsState();
+}
+
+class _BlogPostsState extends State<BlogPosts> {
+   late final dirr; 
+ @override
+  void initState() {
+   addFile();
+    super.initState();
+  }
+  
+  addFile()async{
+    dirr=await getExternalStorageDirectory();
+  }
+    Future<String> get local_path async{
+    final directory=await getExternalStorageDirectory();
+    return directory!.path;
+  }
+
+  Future<File> _localFile(file) async{
+    final path=await local_path;
+    return File("${path}/$file");
+    
+  }
+
+  Future<void> _fileFromImageUrl(blogurl,doc_id) async {
+      final bogresponse = await http.get(Uri.parse('$blogurl'));
+
+     final blogfile=await _localFile("${doc_id}blog.png");
+    blogfile.writeAsBytesSync(bogresponse.bodyBytes);
+  }
+
   @override
   Widget build(BuildContext context) {
+    
     return Column(
       children: <Widget>[
         StreamBuilder(
-            stream: myblogs,
+            stream: widget.myblogs,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Text("Something went wrong");
@@ -31,10 +73,14 @@ class BlogPosts extends StatelessWidget {
                 Center(child: Text("No data is available"));
               }
               if (snapshot.hasData) {
+                for(var blg in snapshot.data!.docs){
+                     _fileFromImageUrl(blg["blog"],blg["doc_id"]);
+
+                }
                 return Container(
                   padding: EdgeInsets.symmetric(vertical: 5.0),
                   height: MediaQuery.of(context).size.width * 0.90,
-                  color: backgrnd,
+                  color: widget.backgrnd,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: snapshot.data!.docs.length,
@@ -49,8 +95,8 @@ class BlogPosts extends StatelessWidget {
                               MaterialPageRoute(
                                   builder: (_) => BlogScreen(
                                         blog: blog,
-                                        backgrnd: backgrnd,
-                                        b_white: b_white,
+                                        backgrnd: widget.backgrnd,
+                                        b_white: widget.b_white,
                                       )));
                         },
                         child: Padding(
@@ -65,7 +111,7 @@ class BlogPosts extends StatelessWidget {
                                       MediaQuery.of(context).size.width * 0.90,
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(14.0),
-                                      color: backgrnd,
+                                      color: widget.backgrnd,
                                       boxShadow: [
                                         BoxShadow(
                                             color: Colors.black26,
@@ -75,10 +121,7 @@ class BlogPosts extends StatelessWidget {
                                       ]),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(14.0),
-                                    child: Image(
-                                      image: NetworkImage(blog['blog']),
-                                      fit: BoxFit.cover,
-                                    ),
+                                    child:Image.file(File("${dirr.path}/${blog['doc_id']}blog.png"))
                                   )),
                               Positioned(
                                 bottom: 10.0,

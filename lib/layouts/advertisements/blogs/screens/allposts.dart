@@ -1,13 +1,15 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import "package:http/http.dart" as http;
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:platform_device_id/platform_device_id.dart';
-
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
-import 'package:udom_timetable/layouts/advertisements/blogs/models/blog_model.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_screen.dart';
 
 class AllPosts extends StatefulWidget {
@@ -21,10 +23,34 @@ class AllPosts extends StatefulWidget {
 }
 
 class _AllPostsState extends State<AllPosts> {
+     late final dirr; 
+  
+  addFile()async{
+    dirr=await getExternalStorageDirectories();
+  }
+    Future<String> get local_path async{
+    final directory=await getExternalStorageDirectory();
+    return directory!.path;
+  }
+
+  Future<File> _localFile(file) async{
+    final path=await local_path;
+    return File("${path}/$file");
+    
+  }
+
+  Future<void> _fileFromImageUrl(blogurl,doc_id) async {
+      final bogresponse = await http.get(Uri.parse('$blogurl'));
+
+     final blogfile=await _localFile("${doc_id}blog.png");
+    blogfile.writeAsBytesSync(bogresponse.bodyBytes);
+  }
+
   late Stream<QuerySnapshot<Map<String, dynamic>>> allblogs;
   CollectionReference blogs = FirebaseFirestore.instance.collection('blogs');
   @override
   void initState() {
+       addFile();
     if (widget.title.toString().contains("Popular")) {
       allblogs = FirebaseFirestore.instance
           .collection('blogs')
@@ -91,6 +117,10 @@ class _AllPostsState extends State<AllPosts> {
                 return Text("Something went wrong");
               }
               if (snapshot.hasData) {
+                 for(var blg in snapshot.data!.docs){
+                     _fileFromImageUrl(blg["blog"],blg["doc_id"]);
+
+                }
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   setState(() {
                     docsss = snapshot.data!.docs;
@@ -143,13 +173,10 @@ class _AllPostsState extends State<AllPosts> {
                                               borderRadius:
                                                   BorderRadius.circular(10.0)),
                                           child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            child: Image(
-                                              image: NetworkImage(blog['blog']),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                              child: Image.file(File("${dirr.path}/${blog['doc_id']}blog.png"))
+                                              ),
                                         ),
                                         Container(
                                           width: MediaQuery.of(context)
@@ -345,6 +372,7 @@ class _AllPostsState extends State<AllPosts> {
   }
 }
 
+
 //searching
 class CustomSearchDelegate extends SearchDelegate {
   // Demo list to show querying
@@ -390,12 +418,12 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     List<String> matchQuery = [];
-     List<QueryDocumentSnapshot<Map<String, dynamic>>> blogggs=[];
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> blogggs = [];
     for (var fruit in blogss) {
       print(fruit["title"]);
       if (fruit['title'].toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(fruit['title']);
-          blogggs.add(fruit);
+        blogggs.add(fruit);
       }
     }
     return ListView.builder(
@@ -432,7 +460,7 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     List<String> matchQuery2 = [];
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> blogggs=[];
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> blogggs = [];
     for (var fruit in blogss) {
       print(fruit["title"]);
       if (fruit['title'].toLowerCase().contains(query.toLowerCase())) {
