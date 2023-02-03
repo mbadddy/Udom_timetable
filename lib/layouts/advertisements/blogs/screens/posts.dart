@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:checkmark/checkmark.dart';
@@ -5,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as storage;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import "package:http/http.dart" as http;
@@ -25,28 +27,66 @@ class MyPosts extends StatefulWidget {
 }
 
 class _MyPostsState extends State<MyPosts> {
-       late final dirr; 
-  
-  addFile()async{
-    dirr=await getExternalStorageDirectories();
-  }
-    Future<String> get local_path async{
-    final directory=await getExternalStorageDirectory();
-    return directory!.path;
-  }
-
-  Future<File> _localFile(file) async{
-    final path=await local_path;
-    return File("${path}/$file");
-    
+  Box<Uint8List>? blog_images;
+  late Timer _timer;
+  _AnimatedFlutterLogoState() {
+    _timer = new Timer(const Duration(seconds: 5), () {
+      setState(() {
+        LoadAndAddDta();
+      });
+    });
   }
 
-  Future<void> _fileFromImageUrl(blogurl,doc_id) async {
-      final bogresponse = await http.get(Uri.parse('$blogurl'));
+  LoadAndAddDta() {
+    if (docsss.isNotEmpty) {
+      if (docsss.isNotEmpty) {
+        if (blog_images == null) {
+          for (var blg in docsss) {
 
-     final blogfile=await _localFile("${doc_id}blog.png");
-    blogfile.writeAsBytesSync(bogresponse.bodyBytes);
+            _fileFromImageUrl(blg["blog"], blg["doc_id"]);
+          }
+        } else {
+          for (var blg in docsss) {
+            if (blog_images!.get(blg['doc_id']) == null) {
+              _fileFromImageUrl(blg["blog"], blg["doc_id"]);
+            }
+          }
+        }
+      }
+    }
   }
+
+  Future<void> _fileFromImageUrl(blogurl, doc_id) async {
+    try {
+      final blogresponse = await http.get(Uri.parse('$blogurl'));
+      saveImages(blogresponse.bodyBytes, doc_id);
+    } catch (e) {
+      print("error conection......");
+    }
+  }
+
+  saveImages(Uint8List blogimage, doc_idd) async {
+    blog_images = Hive.box<Uint8List>("blogimages");
+    blog_images!.put("$doc_idd", blogimage);
+    print("image $doc_idd added");
+  }
+
+  @override
+  void initState() {
+    blog_images= Hive.box<Uint8List>("blogimages");
+    deleted = Hive.box<List<String>>("del_docs");
+    uid = FirebaseAuth.instance.currentUser!.uid;
+    _AnimatedFlutterLogoState();
+    super.initState();
+  }
+
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> docsss = [];
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
   TextEditingController e_title = TextEditingController();
   TextEditingController e_body = TextEditingController();
   TextEditingController e_author = TextEditingController();
@@ -61,18 +101,11 @@ class _MyPostsState extends State<MyPosts> {
   late String uid;
   var doc_idd;
   Box<List<String>>? deleted;
-  @override
-  void initState() {
-    addFile();
-    deleted = Hive.box<List<String>>("del_docs");
-    uid = FirebaseAuth.instance.currentUser!.uid;
-    super.initState();
-  }
-
   List<String> options = ["delete", "update"];
   String? user_phot;
   String? blog_phot;
   bool attempt = false;
+
   Stream<QuerySnapshot<Map<String, dynamic>>>? myblogs;
   @override
   Widget build(BuildContext context) {
@@ -82,7 +115,6 @@ class _MyPostsState extends State<MyPosts> {
           .where("uid", isEqualTo: uid)
           .snapshots();
     });
-
     Color appbar = appColr;
     Color log_page = Colors.white;
     Color log_txt = Colors.black87;
@@ -114,10 +146,11 @@ class _MyPostsState extends State<MyPosts> {
             }
 
             if (snapshot.hasData) {
-                for(var blg in snapshot.data!.docs){
-                     _fileFromImageUrl(blg["blog"],blg["doc_id"]);
-
-                }
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                setState(() {
+                  docsss = snapshot.data!.docs;
+                });
+              });
               return Container(
                 color: log_page,
                 child: ListView(children: [
@@ -152,10 +185,22 @@ class _MyPostsState extends State<MyPosts> {
                                             borderRadius:
                                                 BorderRadius.circular(10.0)),
                                         child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                          child:Image.file(File("${dirr.path}/${blog['doc_id']}blog.png"))
-                                        ),
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            child: blog_images != null
+                                                ? blog_images!.get(
+                                                            "${blog['doc_id']}") !=
+                                                        null
+                                                    ? Image.memory(
+                                                        blog_images!.get(
+                                                            "${blog['doc_id']}")!,
+                                                        fit: BoxFit.cover)
+                                                    : Center(
+                                                        child:
+                                                            const CircularProgressIndicator())
+                                                : Center(
+                                                    child:
+                                                        const CircularProgressIndicator())),
                                       ),
                                       Container(
                                         width:
@@ -473,7 +518,10 @@ class _MyPostsState extends State<MyPosts> {
           storage.FirebaseStorage.instance.ref().child("users").child("/$blog");
       blogref.delete();
       userref.delete();
+      blog_images!.delete("$blog");
+
       setState(() {
+        blog_images = Hive.box<Uint8List>("blogimages");
         myblogs = FirebaseFirestore.instance
             .collection('blogs')
             .where("uid", isEqualTo: uid)

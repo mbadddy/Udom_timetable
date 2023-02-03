@@ -1,13 +1,15 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
+import "package:http/http.dart" as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:platform_device_id/platform_device_id.dart';
-import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_screen.dart';
 
 class RecentPosts extends StatefulWidget {
@@ -26,15 +28,59 @@ class RecentPosts extends StatefulWidget {
 }
 
 class _RecentPostsState extends State<RecentPosts> {
- late final dirr; 
+  Box<Uint8List>? blog_images;
+  late Timer _timer;
+  _AnimatedFlutterLogoState() {
+    _timer = new Timer(const Duration(seconds: 5), () {
+      setState(() {
+     LoadAndAddDta();
+      });
+    });
+  }
+ LoadAndAddDta(){
+ if(docsss.isNotEmpty){
+if (docsss.isNotEmpty) {
+                  if (blog_images == null) {
+                    for (var blg in docsss) {
+                        _fileFromImageUrl(blg["blog"], blg["doc_id"]);
+                    }
+                  } else {
+                    for (var blg in docsss) {
+                      if (blog_images!.get(blg['doc_id']) == null) {
+                        _fileFromImageUrl(blg["blog"], blg["doc_id"]);
+                      }
+                     
+                    }
+                  }
+                }
+ }
+ }
+  Future<void> _fileFromImageUrl(blogurl, doc_id) async {
+    try {
+      final blogresponse = await http.get(Uri.parse('$blogurl'));
+      saveImages(blogresponse.bodyBytes, doc_id);
+    } catch (e) {
+     print("error conection......");
+    }
+  }
+
+  saveImages(Uint8List blogimage, doc_idd) async {
+    blog_images = Hive.box<Uint8List>("blogimages");
+    blog_images!.put("$doc_idd", blogimage);
+    print("image $doc_idd added");
+  }
  @override
   void initState() {
-   addFile();
+    blog_images=Hive.box<Uint8List>("blogimages");
+    _AnimatedFlutterLogoState();
     super.initState();
   }
   
-  addFile()async{
-    dirr=await getExternalStorageDirectory();
+   List<QueryDocumentSnapshot<Map<String, dynamic>>> docsss = [];
+     @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {
@@ -47,6 +93,11 @@ class _RecentPostsState extends State<RecentPosts> {
           }
           if (snapshot.hasData) {
 
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  setState(() {
+                    docsss = snapshot.data!.docs;
+                  });
+                });
             return Container(
               color: widget.backgrnd,
               child: Column(
@@ -96,7 +147,16 @@ class _RecentPostsState extends State<RecentPosts> {
                                       child: ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(10.0),
-                                          child:Image.file(File("${dirr.path}/${blog['doc_id']}blog.png"),fit: BoxFit.cover,)
+                                          child:blog_images != null
+                                                    ? blog_images!.get(
+                                                                "${blog['doc_id']}") !=
+                                                            null
+                                                        ? Image.memory(
+                                                            blog_images!.get(
+                                                                "${blog['doc_id']}")!,
+                                                            fit: BoxFit.cover)
+                                                        : Center(child: const CircularProgressIndicator())
+                                                    : Center(child: const CircularProgressIndicator())
                                           ),
                                     ),
                                     Container(

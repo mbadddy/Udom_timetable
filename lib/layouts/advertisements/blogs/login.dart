@@ -341,7 +341,7 @@ class _LoginPageState extends State<LoginPage> {
           await FirebaseAuth.instance
               .signInWithEmailAndPassword(email: username, password: password);
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => CreateBlog()));
+              .pushReplacement(MaterialPageRoute(builder: (context) => CreateBlog()));
        
       }
       setState(() {

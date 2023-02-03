@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 
@@ -20,6 +22,12 @@ class BlogScreen extends StatefulWidget {
 }
 
 class _BlogScreenState extends State<BlogScreen> {
+     Box<Uint8List>? blog_images;
+     @override
+  void initState() {
+  blog_images = Hive.box<Uint8List>("blogimages");
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,22 +40,8 @@ class _BlogScreenState extends State<BlogScreen> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.45,
                   child: ClipRRect(
-                    child: Image.network(
-                      "${widget.blog['blog']}",
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: appColr,
-                          alignment: Alignment.center,
-                          child: Center(
-                            child: const Text(
-                              'network error!',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.white),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                    child: Image.memory(blog_images!.get("${widget.blog['doc_id']}")!,
+                        fit: BoxFit.cover),
                   ),
                 ),
                 Positioned(

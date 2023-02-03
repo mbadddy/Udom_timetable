@@ -1,13 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import "package:http/http.dart" as http;
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_screen.dart';
@@ -23,34 +24,62 @@ class AllPosts extends StatefulWidget {
 }
 
 class _AllPostsState extends State<AllPosts> {
-     late final dirr; 
-  
-  addFile()async{
-    dirr=await getExternalStorageDirectories();
-  }
-    Future<String> get local_path async{
-    final directory=await getExternalStorageDirectory();
-    return directory!.path;
-  }
-
-  Future<File> _localFile(file) async{
-    final path=await local_path;
-    return File("${path}/$file");
-    
+  Box<Uint8List>? blog_images;
+  late Timer _timer;
+  _AnimatedFlutterLogoState() {
+    _timer = new Timer(const Duration(seconds: 5), () {
+      setState(() {
+        LoadAndAddDta();
+      });
+    });
   }
 
-  Future<void> _fileFromImageUrl(blogurl,doc_id) async {
-      final bogresponse = await http.get(Uri.parse('$blogurl'));
+  LoadAndAddDta() {
+    if (docsss.isNotEmpty) {
+      if (docsss.isNotEmpty) {
+        if (blog_images == null) {
+          for (var blg in docsss) {
+            _fileFromImageUrl(blg["blog"], blg["doc_id"]);
+          }
+        } else {
+          for (var blg in docsss) {
+            if (blog_images!.get(blg['doc_id']) == null) {
+              _fileFromImageUrl(blg["blog"], blg["doc_id"]);
+            }
+          }
+        }
+      }
+    }
+  }
 
-     final blogfile=await _localFile("${doc_id}blog.png");
-    blogfile.writeAsBytesSync(bogresponse.bodyBytes);
+  Future<void> _fileFromImageUrl(blogurl, doc_id) async {
+    try {
+      final blogresponse = await http.get(Uri.parse('$blogurl'));
+      saveImages(blogresponse.bodyBytes, doc_id);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('connection problem...'),
+          duration: Duration(milliseconds: 1500),
+          width: 280.0,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  saveImages(Uint8List blogimage, doc_idd) async {
+    blog_images = Hive.box<Uint8List>("blogimages");
+    blog_images!.put("$doc_idd", blogimage);
+    print("image $doc_idd added");
   }
 
   late Stream<QuerySnapshot<Map<String, dynamic>>> allblogs;
   CollectionReference blogs = FirebaseFirestore.instance.collection('blogs');
   @override
   void initState() {
-       addFile();
+    blog_images = Hive.box<Uint8List>("blogimages");
+    _AnimatedFlutterLogoState();
     if (widget.title.toString().contains("Popular")) {
       allblogs = FirebaseFirestore.instance
           .collection('blogs')
@@ -66,6 +95,14 @@ class _AllPostsState extends State<AllPosts> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  List<String> blogurll = [];
+  List<String> doc_ids = [];
   List<QueryDocumentSnapshot<Map<String, dynamic>>> docsss = [];
   @override
   Widget build(BuildContext context) {
@@ -117,10 +154,6 @@ class _AllPostsState extends State<AllPosts> {
                 return Text("Something went wrong");
               }
               if (snapshot.hasData) {
-                 for(var blg in snapshot.data!.docs){
-                     _fileFromImageUrl(blg["blog"],blg["doc_id"]);
-
-                }
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   setState(() {
                     docsss = snapshot.data!.docs;
@@ -129,187 +162,201 @@ class _AllPostsState extends State<AllPosts> {
 
                 return Container(
                   color: log_page,
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: snapshot.data!.docs
-                          .map((blog) => GestureDetector(
-                                onTap: () {
-                                  catchViewer(blog['doc_id']);
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => BlogScreen(
-                                                blog: blog,
-                                                backgrnd: log_page,
-                                                b_white: log_txt,
-                                              )));
-                                },
-                                child: Container(
-                                  margin: EdgeInsets.only(bottom: 15.0),
-                                  width: MediaQuery.of(context).size.width,
-                                  height: 140,
-                                  decoration: BoxDecoration(
-                                    boxShadow: <BoxShadow>[
-                                      BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 15.0,
-                                          offset: Offset(0.0, 0.75))
-                                    ],
-                                    color: log_page,
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 15.0, horizontal: 20.0),
-                                    child: Row(
-                                      children: <Widget>[
-                                        Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.22,
-                                          height: 110,
-                                          decoration: BoxDecoration(
-                                              color: Colors.blue,
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0)),
-                                          child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              child: Image.file(File("${dirr.path}/${blog['doc_id']}blog.png"))
-                                              ),
-                                        ),
-                                        Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.66,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 20.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              SizedBox(height: 5.0),
-                                              Text(
-                                                blog['author_name'],
-                                                style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 14.0,
-                                                ),
-                                              ),
-                                              SizedBox(height: 5.0),
-                                              Container(
-                                                height: 65,
-                                                child: Text(
-                                                  blog['title'],
-                                                  style: TextStyle(
-                                                      fontSize: 18.0,
-                                                      color: log_txt,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ),
-                                              Row(
-                                                children: <Widget>[
-                                                  Row(
-                                                    children: <Widget>[
-                                                      Icon(
-                                                        Icons.timer,
-                                                        color: Colors.grey,
-                                                        size: 12.0,
-                                                      ),
-                                                      SizedBox(width: 5.0),
-                                                      Duration(
-                                                                      minutes: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now()))
-                                                                          .difference(DateTime.parse(blog['created']
-                                                                              .toString()))
-                                                                          .inMinutes)
-                                                                  .inMinutes >=
-                                                              60
-                                                          ? Duration(hours: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inHours)
-                                                                      .inHours >=
-                                                                  24
-                                                              ? Duration(days: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays)
-                                                                          .inDays >=
-                                                                      7
-                                                                  ? (Duration(days: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 7)
-                                                                              .floor() >=
-                                                                          4
-                                                                      ? (Duration(days: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 7).floor() >=
-                                                                              48
-                                                                          ? Text(
-                                                                              "${(Duration(days: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 336).floor()} yrs ago",
-                                                                              style: TextStyle(
-                                                                                color: Colors.grey,
-                                                                              ),
-                                                                            )
-                                                                          : Text(
-                                                                              "${(Duration(days: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 28).floor()} months ago",
-                                                                              style: TextStyle(
-                                                                                color: Colors.grey,
-                                                                              ),
-                                                                            )
-                                                                      : Text(
-                                                                          "${(Duration(days: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 7).floor()} weeks ago",
-                                                                          style:
-                                                                              TextStyle(
-                                                                            color:
-                                                                                Colors.grey,
-                                                                          ),
-                                                                        )
-                                                                  : Text(
-                                                                      "${Duration(days: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays % 7} days ago",
-                                                                      style:
-                                                                          TextStyle(
-                                                                        color: Colors
-                                                                            .grey,
-                                                                      ),
-                                                                    )
-                                                              : Text(
-                                                                  "${Duration(hours: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inHours).inHours} hrs ago",
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                  ),
-                                                                )
-                                                          : Text(
-                                                              "${Duration(minutes: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inMinutes).inMinutes} min ago",
-                                                              style: TextStyle(
-                                                                color:
-                                                                    Colors.grey,
-                                                              ),
-                                                            )
-                                                    ],
-                                                  ),
-                                                  SizedBox(width: 20.0),
-                                                  Row(
-                                                    children: <Widget>[
-                                                      Icon(
-                                                        Icons.remove_red_eye,
-                                                        color: Colors.grey,
-                                                        size: 12.0,
-                                                      ),
-                                                      SizedBox(width: 5.0),
-                                                      Text(
-                                                        "${blog['viewers']} Views",
-                                                        style: TextStyle(
-                                                          color: Colors.grey,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        )
+                  child: ListView(children: [
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: snapshot.data!.docs
+                            .map((blog) => GestureDetector(
+                                  onTap: () {
+                                    catchViewer(blog['doc_id']);
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) => BlogScreen(
+                                                  blog: blog,
+                                                  backgrnd: log_page,
+                                                  b_white: log_txt,
+                                                )));
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.only(bottom: 15.0),
+                                    width: MediaQuery.of(context).size.width,
+                                    height: 140,
+                                    decoration: BoxDecoration(
+                                      boxShadow: <BoxShadow>[
+                                        BoxShadow(
+                                            color: Colors.black12,
+                                            blurRadius: 15.0,
+                                            offset: Offset(0.0, 0.75))
                                       ],
+                                      color: log_page,
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 15.0, horizontal: 20.0),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.22,
+                                            height: 110,
+                                            decoration: BoxDecoration(
+                                                color: Colors.blue,
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10.0)),
+                                            child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                                child: blog_images != null
+                                                    ? blog_images!.get(
+                                                                "${blog['doc_id']}") !=
+                                                            null
+                                                        ? Image.memory(
+                                                            blog_images!.get(
+                                                                "${blog['doc_id']}")!,
+                                                            fit: BoxFit.cover)
+                                                        : Center(
+                                                            child:
+                                                                const CircularProgressIndicator())
+                                                    : Center(
+                                                        child:
+                                                            const CircularProgressIndicator())),
+                                          ),
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.66,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 20.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                SizedBox(height: 5.0),
+                                                Text(
+                                                  blog['author_name'],
+                                                  style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 14.0,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 5.0),
+                                                Container(
+                                                  height: 65,
+                                                  child: Text(
+                                                    blog['title'],
+                                                    style: TextStyle(
+                                                        fontSize: 18.0,
+                                                        color: log_txt,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                                Row(
+                                                  children: <Widget>[
+                                                    Row(
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons.timer,
+                                                          color: Colors.grey,
+                                                          size: 12.0,
+                                                        ),
+                                                        SizedBox(width: 5.0),
+                                                        Duration(
+                                                                        minutes: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now()))
+                                                                            .difference(DateTime.parse(blog['created']
+                                                                                .toString()))
+                                                                            .inMinutes)
+                                                                    .inMinutes >=
+                                                                60
+                                                            ? Duration(hours: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inHours)
+                                                                        .inHours >=
+                                                                    24
+                                                                ? Duration(days: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays)
+                                                                            .inDays >=
+                                                                        7
+                                                                    ? (Duration(days: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 7).floor() >=
+                                                                            4
+                                                                        ? (Duration(days: DateTime.parse(DateFormat("yyyy-MM-dd hh:mm:ss").format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 7).floor() >=
+                                                                                48
+                                                                            ? Text(
+                                                                                "${(Duration(days: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 336).floor()} yrs ago",
+                                                                                style: TextStyle(
+                                                                                  color: Colors.grey,
+                                                                                ),
+                                                                              )
+                                                                            : Text(
+                                                                                "${(Duration(days: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 28).floor()} months ago",
+                                                                                style: TextStyle(
+                                                                                  color: Colors.grey,
+                                                                                ),
+                                                                              )
+                                                                        : Text(
+                                                                            "${(Duration(days: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays / 7).floor()} weeks ago",
+                                                                            style:
+                                                                                TextStyle(
+                                                                              color: Colors.grey,
+                                                                            ),
+                                                                          )
+                                                                    : Text(
+                                                                        "${Duration(days: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inDays).inDays % 7} days ago",
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              Colors.grey,
+                                                                        ),
+                                                                      )
+                                                                : Text(
+                                                                    "${Duration(hours: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inHours).inHours} hrs ago",
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                    ),
+                                                                  )
+                                                            : Text(
+                                                                "${Duration(minutes: DateTime.parse(DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now())).difference(DateTime.parse(blog['created'].toString())).inMinutes).inMinutes} min ago",
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                              )
+                                                      ],
+                                                    ),
+                                                    SizedBox(width: 20.0),
+                                                    Row(
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons.remove_red_eye,
+                                                          color: Colors.grey,
+                                                          size: 12.0,
+                                                        ),
+                                                        SizedBox(width: 5.0),
+                                                        Text(
+                                                          "${blog['viewers']} Views",
+                                                          style: TextStyle(
+                                                            color: Colors.grey,
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ))
-                          .toList()),
+                                ))
+                            .toList()),
+                  ]),
                 );
               } else {
                 Center(child: Text("No data is available"));
@@ -371,7 +418,6 @@ class _AllPostsState extends State<AllPosts> {
     return result!;
   }
 }
-
 
 //searching
 class CustomSearchDelegate extends SearchDelegate {
@@ -487,7 +533,7 @@ class CustomSearchDelegate extends SearchDelegate {
           },
           leading: CircleAvatar(
               backgroundColor: appColr,
-              child: Text(result.toString().substring(4, 6))),
+              child: Text(result.toString().substring(2, 4))),
           title: Text(result),
           trailing: Icon(
             Icons.arrow_forward_ios_rounded,

@@ -1,18 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-
-import 'dart:io';
+import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:platform_device_id/platform_device_id.dart';
-import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import "package:http/http.dart" as http;
-
+import 'package:intl/intl.dart';
+import 'package:platform_device_id/platform_device_id.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_screen.dart';
 
 class BlogPosts extends StatefulWidget {
@@ -31,37 +27,65 @@ class BlogPosts extends StatefulWidget {
 }
 
 class _BlogPostsState extends State<BlogPosts> {
-   late final dirr; 
- @override
+  Box<Uint8List>? blog_images;
+  late Timer _timer;
+  _AnimatedFlutterLogoState() {
+    _timer = new Timer(const Duration(seconds: 5), () {
+      setState(() {
+        LoadAndAddDta();
+      });
+    });
+  }
+
+  LoadAndAddDta() {
+    if (docsss.isNotEmpty) {
+      if (docsss.isNotEmpty) {
+        if (blog_images == null) {
+          for (var blg in docsss) {
+            _fileFromImageUrl(blg["blog"], blg["doc_id"]);
+          }
+        } else {
+          for (var blg in docsss) {
+            if (blog_images!.get(blg['doc_id']) == null) {
+              _fileFromImageUrl(blg["blog"], blg["doc_id"]);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> _fileFromImageUrl(blogurl, doc_id) async {
+    try {
+      final blogresponse = await http.get(Uri.parse('$blogurl'));
+      saveImages(blogresponse.bodyBytes, doc_id);
+    } catch (e) {
+      print("error conection......");
+    }
+  }
+
+  saveImages(Uint8List blogimage, doc_idd) async {
+    blog_images = Hive.box<Uint8List>("blogimages");
+    blog_images!.put("$doc_idd", blogimage);
+    print("image $doc_idd added");
+  }
+
+  @override
   void initState() {
-   addFile();
+    blog_images = Hive.box<Uint8List>("blogimages");
+    _AnimatedFlutterLogoState();
     super.initState();
   }
-  
-  addFile()async{
-    dirr=await getExternalStorageDirectory();
-  }
-    Future<String> get local_path async{
-    final directory=await getExternalStorageDirectory();
-    return directory!.path;
-  }
 
-  Future<File> _localFile(file) async{
-    final path=await local_path;
-    return File("${path}/$file");
-    
-  }
-
-  Future<void> _fileFromImageUrl(blogurl,doc_id) async {
-      final bogresponse = await http.get(Uri.parse('$blogurl'));
-
-     final blogfile=await _localFile("${doc_id}blog.png");
-    blogfile.writeAsBytesSync(bogresponse.bodyBytes);
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> docsss = [];
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return Column(
       children: <Widget>[
         StreamBuilder(
@@ -73,10 +97,11 @@ class _BlogPostsState extends State<BlogPosts> {
                 Center(child: Text("No data is available"));
               }
               if (snapshot.hasData) {
-                for(var blg in snapshot.data!.docs){
-                     _fileFromImageUrl(blg["blog"],blg["doc_id"]);
-
-                }
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  setState(() {
+                    docsss = snapshot.data!.docs;
+                  });
+                });
                 return Container(
                   padding: EdgeInsets.symmetric(vertical: 5.0),
                   height: MediaQuery.of(context).size.width * 0.90,
@@ -120,9 +145,21 @@ class _BlogPostsState extends State<BlogPosts> {
                                             spreadRadius: 0.10)
                                       ]),
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(14.0),
-                                    child:Image.file(File("${dirr.path}/${blog['doc_id']}blog.png"))
-                                  )),
+                                      borderRadius: BorderRadius.circular(14.0),
+                                      child: blog_images != null
+                                          ? blog_images!.get(
+                                                      "${blog['doc_id']}") !=
+                                                  null
+                                              ? Image.memory(
+                                                  blog_images!.get(
+                                                      "${blog['doc_id']}")!,
+                                                  fit: BoxFit.cover)
+                                              : Center(
+                                                  child:
+                                                      const CircularProgressIndicator())
+                                          : Center(
+                                              child:
+                                                  const CircularProgressIndicator()))),
                               Positioned(
                                 bottom: 10.0,
                                 left: 10.0,
