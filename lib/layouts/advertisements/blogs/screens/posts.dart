@@ -982,7 +982,10 @@ class _MyPostsState extends State<MyPosts> {
         "venue": e_venue.text,
         "blog": u_blog_image != null ? blogurl : blog_phot,
         "user": u_user_image != null ? userurl : user_phot,
-        "created": created
+        "created": created,
+        "viewers":0
+
+        
       };
       print("apaaa.3..");
       firebase.set(json);
