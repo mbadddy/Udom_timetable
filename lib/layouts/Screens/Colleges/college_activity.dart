@@ -71,7 +71,7 @@ class _CollegeeState extends State<Collegee> {
         ),
         body: Programe.programmes[0][widget.title] == null
             ? Center(
-                child: Text("Released Soon"),
+                child: Image.asset("assets/images/oops.png",fit: BoxFit.cover,),
               )
             : Padding(
                 padding: EdgeInsets.only(right: 10),

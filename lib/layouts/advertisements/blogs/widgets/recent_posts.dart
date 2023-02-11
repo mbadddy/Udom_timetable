@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import "package:http/http.dart" as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:platform_device_id/platform_device_id.dart';
+import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_screen.dart';
 
 class RecentPosts extends StatefulWidget {
@@ -155,8 +156,8 @@ if (docsss.isNotEmpty) {
                                                             blog_images!.get(
                                                                 "${blog['doc_id']}")!,
                                                             fit: BoxFit.cover)
-                                                        : Center(child: const CircularProgressIndicator())
-                                                    : Center(child: const CircularProgressIndicator())
+                                                        : Center(child: CircularProgressIndicator(color: Colors.white,strokeWidth: 3.0,))
+                                                    : Center(child: CircularProgressIndicator(color: Colors.white,strokeWidth: 3.0,))
                                           ),
                                     ),
                                     Container(
@@ -298,15 +299,15 @@ if (docsss.isNotEmpty) {
           } else {
             Center(child: Text("No data is available"));
           }
-          return Center(child: const CircularProgressIndicator());
+          return Center(child:  CircularProgressIndicator(color: appColr,strokeWidth: 3.0,));
         });
   }
 
   void catchViewer(blog) async {
     final firebase =
-        FirebaseFirestore.instance.collection("blogs").doc("$blog");
+        FirebaseFirestore.instance.collection("blogg").doc("$blog");
     DocumentReference ref =
-        FirebaseFirestore.instance.collection("blogs").doc("$blog");
+        FirebaseFirestore.instance.collection("blogg").doc("$blog");
     String viewers = await ref.get().then(
       (DocumentSnapshot value) {
         return value.get("viewers").toString();
@@ -340,6 +341,9 @@ if (docsss.isNotEmpty) {
           ref.update(data);
           print(
               "device $dev_id doc $doc_id views ${int.parse("$viewers") + 1}");
+        }
+        else{
+          print("seen..................");
         }
       }
     } else {

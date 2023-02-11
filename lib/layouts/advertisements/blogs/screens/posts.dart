@@ -12,12 +12,9 @@ import 'package:hive/hive.dart';
 import "package:http/http.dart" as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:platform_device_id/platform_device_id.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/animated/dialogbox.dart';
-
-// Import the plugin
-import '../modal/blog.dart';
 
 class MyPosts extends StatefulWidget {
   const MyPosts({super.key});
@@ -42,7 +39,6 @@ class _MyPostsState extends State<MyPosts> {
       if (docsss.isNotEmpty) {
         if (blog_images == null) {
           for (var blg in docsss) {
-
             _fileFromImageUrl(blg["blog"], blg["doc_id"]);
           }
         } else {
@@ -71,13 +67,22 @@ class _MyPostsState extends State<MyPosts> {
     print("image $doc_idd added");
   }
 
+  Stream<QuerySnapshot<Map<String, dynamic>>>? myblogs;
+  late String uid;
   @override
   void initState() {
-    blog_images= Hive.box<Uint8List>("blogimages");
-    deleted = Hive.box<List<String>>("del_docs");
     uid = FirebaseAuth.instance.currentUser!.uid;
     _AnimatedFlutterLogoState();
     super.initState();
+    setState(() {
+      myblogs = FirebaseFirestore.instance
+          .collection('blogg')
+          .orderBy("doc_id", descending: false)
+          .where("uid", isEqualTo: uid)
+          .snapshots();
+    });
+    blog_images = Hive.box<Uint8List>("blogimages");
+    deleted = Hive.box<List<String>>("del_docs");
   }
 
   List<QueryDocumentSnapshot<Map<String, dynamic>>> docsss = [];
@@ -93,28 +98,20 @@ class _MyPostsState extends State<MyPosts> {
   TextEditingController e_date = TextEditingController();
   TextEditingController e_venue = TextEditingController();
   bool active = false;
-  Stream<List<Blog>> readUsers() => FirebaseFirestore.instance
-      .collection("blogs")
-      .snapshots()
-      .map((event) => event.docs.map((e) => Blog.fromMap(e.data())).toList());
-  CollectionReference blogs = FirebaseFirestore.instance.collection('blogs');
-  late String uid;
+
+  CollectionReference blogs = FirebaseFirestore.instance.collection('blogg');
+
   var doc_idd;
   Box<List<String>>? deleted;
   List<String> options = ["delete", "update"];
+  List<String> categorys = ["sort", "delete all"];
   String? user_phot;
   String? blog_phot;
   bool attempt = false;
+  List<String> sort = ["Viewers", "Time", "Title", "Author", "Event date"];
 
-  Stream<QuerySnapshot<Map<String, dynamic>>>? myblogs;
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      myblogs = FirebaseFirestore.instance
-          .collection('blogs')
-          .where("uid", isEqualTo: uid)
-          .snapshots();
-    });
     Color appbar = appColr;
     Color log_page = Colors.white;
     Color log_txt = Colors.black87;
@@ -136,13 +133,148 @@ class _MyPostsState extends State<MyPosts> {
               icon: Icon(Icons.arrow_back_ios_new)),
           title: new Text("My Posts"),
           backgroundColor: appbar,
-          actions: [],
+          actions: [
+            PopupMenuButton(
+              position: PopupMenuPosition.under,
+              onSelected: (value) async {
+                if (value == 'delete all') {
+                  print("delete all.............");
+                  await animated_dialog_box.showInOutDailog(
+                    context: context,
+                    icon: Icon(
+                      Icons.info_outline,
+                      color: Colors.red,
+                    ),
+                    firstButton: MaterialButton(
+                      // FIRST BUTTON IS REQUIRED
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      color: Colors.white,
+                      child: Text("cancel"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    secondButton: MaterialButton(
+                      // OPTIONAL BUTTON
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      color: Colors.white,
+                      child: Text('yes'),
+                      onPressed: () {
+                        deleteBlog(0);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    yourWidget: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Text(
+                              "Are you sure you want to clear all of your blog posts.."),
+                        )
+                      ],
+                    ),
+                  );
+                }
+              },
+              itemBuilder: (context) => categorys.map((String option) {
+                bool isempty = false;
+                myblogs!.listen((event) {
+                  if (event.docs.isEmpty) {
+                    isempty = true;
+                  }
+                });
+                if (!isempty) {}
+                if (option == "sort") {
+                  return PopupMenuItem<String>(
+                    value: option,
+                    child: PopupMenuButton(
+                      position: PopupMenuPosition.under,
+                      child: Row(
+                        children: [
+                          Text('Sort By '),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 15,
+                            color: appColr,
+                          )
+                        ],
+                      ),
+                      onSelected: (result) {
+                        // setState(() { _selection = result; });
+                        if (result == "Viewers") {
+                          setState(() {
+                            myblogs = FirebaseFirestore.instance
+                                .collection('blogg')
+                                .orderBy("uid")
+                                .where("uid", isEqualTo: uid)
+                                .orderBy("viewers", descending: true)
+                                .snapshots();
+                          });
+                        } else if (result == "Time") {
+                          setState(() {
+                            myblogs = FirebaseFirestore.instance
+                                .collection('blogg')
+                                .where("uid", isEqualTo: uid)
+                                .orderBy("created", descending: true)
+                                .snapshots();
+                          });
+                        } else if (result == "Title") {
+                          setState(() {
+                            myblogs = FirebaseFirestore.instance
+                                .collection('blogg')
+                                .where("uid", isEqualTo: uid)
+                                .orderBy("title", descending: false)
+                                .snapshots();
+                          });
+                        } else if (result == "Author") {
+                          setState(() {
+                            myblogs = FirebaseFirestore.instance
+                                .collection('blogg')
+                                .where("uid", isEqualTo: uid)
+                                .orderBy("author_name", descending: false)
+                                .snapshots();
+                          });
+                        } else {
+                          setState(() {
+                            myblogs = FirebaseFirestore.instance
+                                .collection('blogg')
+                                .where("uid", isEqualTo: uid)
+                                .orderBy("date", descending: false)
+                                .snapshots();
+                          });
+                        }
+                        Navigator.pop(context);
+                      },
+                      itemBuilder: (context) => sort.map((String e) {
+                        return PopupMenuItem(
+                          child: Text(e),
+                          value: e,
+                        );
+                      }).toList(),
+                    ),
+                  );
+                } else {
+                  return PopupMenuItem<String>(
+                    value: option,
+                    child: Text(option),
+                  );
+                }
+              }).toList(),
+            ),
+          ],
         ),
         body: StreamBuilder(
           stream: myblogs,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return Text("Something went wrong");
+              return Center(child: Text("Something went wrong"));
             }
 
             if (snapshot.hasData) {
@@ -197,10 +329,16 @@ class _MyPostsState extends State<MyPosts> {
                                                         fit: BoxFit.cover)
                                                     : Center(
                                                         child:
-                                                            const CircularProgressIndicator())
+                                                            CircularProgressIndicator(
+                                                        color: Colors.white,
+                                                        strokeWidth: 3.0,
+                                                      ))
                                                 : Center(
                                                     child:
-                                                        const CircularProgressIndicator())),
+                                                        CircularProgressIndicator(
+                                                    color: Colors.white,
+                                                    strokeWidth: 3.0,
+                                                  ))),
                                       ),
                                       Container(
                                         width:
@@ -369,7 +507,7 @@ class _MyPostsState extends State<MyPosts> {
                                                       ),
                                                       color: Colors.white,
                                                       child: active == true
-                                                          ? const CircularProgressIndicator()
+                                                          ? CircularProgressIndicator()
                                                           : Text(value),
                                                       onPressed: () async {
                                                         setState(() {
@@ -399,6 +537,7 @@ class _MyPostsState extends State<MyPosts> {
                                               blog_phot = blog["blog"];
                                               user_phot = blog["user"];
                                               doc_idd = blog["doc_id"];
+                                              viewers = blog["viewers"];
                                             });
                                             await animated_dialog_box
                                                 .showScaleUpdateAlertBox(
@@ -474,122 +613,258 @@ class _MyPostsState extends State<MyPosts> {
                 ]),
               );
             }
-            return Center(child: const CircularProgressIndicator());
+            return Center(
+                child: CircularProgressIndicator(
+              color: appColr,
+              strokeWidth: 3.0,
+            ));
           },
         ));
+  }
+
+  Future<String> getDeviceInfo() async {
+    String? result = await PlatformDeviceId.getDeviceId;
+    return result!;
   }
 
   List<String> actions = ["delete", "update"];
 
   void deleteBlog(blog) async {
-    try {
-      setState(() {
-        print("apaaaaa................");
-        List<String> docs = [];
-        if (deleted!.get('docs') == null) {
-          print("apaaaaa null................");
-          docs.add(blog.toString());
-          deleted!.put("docs", docs);
-        } else {
-          print("apaaaaa co null................");
-          List<String>? docss = deleted!.get('docs');
-          docs.add(blog.toString());
-          for (var d = 0; d < docss!.length; d++) {
-            print(docss[d].toString() + " added");
-            docs.add(docss[d].toString());
-          }
-          print("mwish................");
-          deleted!.put("docs", docs);
-          setState(() {
-            deleted!.get('docs');
-          });
+    String dev_id = await getDeviceInfo();
+    Box<List<String>>? deleteed = Hive.box<List<String>>("del_docs");
+    if (blog == 0) {
+      try {
+        List<String>? device_views = [];
+        List<String>? views = deleteed.get("$dev_id");
+        if (views != null) {
+          deleteed.put("$dev_id", device_views);
         }
-        active = true;
-      });
-      CollectionReference blogs =
-          FirebaseFirestore.instance.collection('blogs');
+        print("deleting......");
+        setState(() {
+          active = true;
+        });
 
-      print(blog);
-      blogs.doc(blog.toString()).delete();
-      //delete photos
-      storage.Reference blogref =
-          storage.FirebaseStorage.instance.ref().child("blogs").child("/$blog");
-      storage.Reference userref =
-          storage.FirebaseStorage.instance.ref().child("users").child("/$blog");
-      blogref.delete();
-      userref.delete();
-      blog_images!.delete("$blog");
+        setState(() async {
+          // CollectionReference blogs =
+          //     FirebaseFirestore.instance.collection('blog');
+          CollectionReference reff =
+              FirebaseFirestore.instance.collection("blogg");
+          reff.get().then((value) async {
+            List<Map<dynamic, dynamic>>? list = [];
+            list = value.docs.map((doc) => doc.data()).cast<Map>().toList();
+            for (var doc in list) {
+              reff.doc(doc["doc_id"].toString()).delete();
+              print("deleting blogs......${doc["doc_id"]}");
+            }
+          });
 
-      setState(() {
-        blog_images = Hive.box<Uint8List>("blogimages");
-        myblogs = FirebaseFirestore.instance
-            .collection('blogs')
-            .where("uid", isEqualTo: uid)
-            .snapshots();
-      });
-      setState(() {
-        active = false;
-      });
-      Navigator.of(context).pop();
-      await animated_dialog_box.showCustomAlertBox(
-        context: context,
-        firstButton: MaterialButton(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40),
-          ),
-          color: Colors.white,
-          child: Text('Ok'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        yourWidget: Column(
-          children: [
-            SizedBox(
-              height: 50,
-              width: 50,
-              child: CheckMark(
-                active: true,
-                curve: Curves.decelerate,
-                duration: const Duration(milliseconds: 5000),
-              ),
+          // blogs.snapshots().forEach((element) {
+          //   for (QueryDocumentSnapshot snapshot in element.docs) {
+          //     snapshot.reference.delete();
+          //     print("deleting blogs......");
+          //   }
+          // });
+          //delete photos
+          storage.ListResult userref = await storage.FirebaseStorage.instance
+              .ref()
+              .child("users")
+              .listAll();
+
+          storage.ListResult blogref = await storage.FirebaseStorage.instance
+              .ref()
+              .child("blogs")
+              .listAll();
+          for (storage.Reference reff in blogref.items) {
+            print("deleting blog imgs......");
+            reff.delete();
+          }
+          for (storage.Reference reff2 in userref.items) {
+            print("deleting user imgs......");
+            reff2.delete();
+          }
+
+          blog_images!.deleteAll(blog_images!.keys);
+          print("deleting local imgs......");
+          // blog_images = Hive.box<Uint8List>("blogimages");
+        });
+        print("deleting complete imgs......");
+        Navigator.of(context).pop();
+        await animated_dialog_box.showCustomAlertBox(
+          context: context,
+          firstButton: MaterialButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
             ),
-            Text("deleted..")
-          ],
-        ),
-      );
-    } catch (e) {
-      setState(() {
-        active = false;
-      });
-      Navigator.of(context).pop();
-      await animated_dialog_box.showCustomAlertBox(
-        context: context,
-        firstButton: MaterialButton(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40),
+            color: Colors.white,
+            child: Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
-          color: Colors.white,
-          child: Text('Ok'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        yourWidget: Column(
-          children: [
-            SizedBox(
-              height: 50,
-              width: 50,
-              child: CheckMark(
-                active: false,
-                curve: Curves.decelerate,
-                duration: const Duration(milliseconds: 5000),
+          yourWidget: Column(
+            children: [
+              SizedBox(
+                height: 50,
+                width: 50,
+                child: CheckMark(
+                  active: true,
+                  curve: Curves.decelerate,
+                  duration: const Duration(milliseconds: 5000),
+                ),
               ),
+              Text("deleted..")
+            ],
+          ),
+        );
+        setState(() {
+          myblogs = FirebaseFirestore.instance
+              .collection('blogg')
+              .where("uid", isEqualTo: uid)
+              .snapshots();
+          active = false;
+        });
+      } catch (e) {
+        setState(() {
+          active = false;
+        });
+
+        Navigator.of(context).pop();
+        await animated_dialog_box.showCustomAlertBox(
+          context: context,
+          firstButton: MaterialButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
             ),
-            Text("error!!..")
-          ],
-        ),
-      );
+            color: Colors.white,
+            child: Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          yourWidget: Column(
+            children: [
+              SizedBox(
+                height: 50,
+                width: 50,
+                child: CheckMark(
+                  active: false,
+                  curve: Curves.decelerate,
+                  duration: const Duration(milliseconds: 5000),
+                ),
+              ),
+              Text("error!!..")
+            ],
+          ),
+        );
+      }
+    } else {
+      try {
+        List<String>? device_views = [];
+        List<String>? views = deleteed.get("$dev_id");
+        if (views != null) {
+          for (var x = 0; x < views.length; x++) {
+            if(views[x]!=blog.toString()){
+                device_views.add(views[x].toString());
+            }
+            else{
+             print("${views[x]} removed...........");
+            }
+            
+          }
+          deleteed.put("$dev_id", device_views);
+        }
+
+        setState(() {
+          active = true;
+        });
+
+        setState(() {
+          CollectionReference blogs =
+              FirebaseFirestore.instance.collection('blogg');
+
+          blogs.doc(blog.toString()).delete();
+          //delete photos
+          storage.Reference blogref = storage.FirebaseStorage.instance
+              .ref()
+              .child("blogs")
+              .child("/$blog");
+          storage.Reference userref = storage.FirebaseStorage.instance
+              .ref()
+              .child("users")
+              .child("/$blog");
+          blogref.delete();
+          userref.delete();
+          blog_images!.delete("$blog");
+          blog_images = Hive.box<Uint8List>("blogimages");
+          myblogs = FirebaseFirestore.instance
+              .collection('blogg')
+              .where("uid", isEqualTo: uid)
+              .snapshots();
+        });
+        setState(() {
+          active = false;
+        });
+        Navigator.of(context).pop();
+        await animated_dialog_box.showCustomAlertBox(
+          context: context,
+          firstButton: MaterialButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
+            ),
+            color: Colors.white,
+            child: Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          yourWidget: Column(
+            children: [
+              SizedBox(
+                height: 50,
+                width: 50,
+                child: CheckMark(
+                  active: true,
+                  curve: Curves.decelerate,
+                  duration: const Duration(milliseconds: 5000),
+                ),
+              ),
+              Text("deleted..")
+            ],
+          ),
+        );
+      } catch (e) {
+        setState(() {
+          active = false;
+        });
+        Navigator.of(context).pop();
+        await animated_dialog_box.showCustomAlertBox(
+          context: context,
+          firstButton: MaterialButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
+            ),
+            color: Colors.white,
+            child: Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          yourWidget: Column(
+            children: [
+              SizedBox(
+                height: 50,
+                width: 50,
+                child: CheckMark(
+                  active: false,
+                  curve: Curves.decelerate,
+                  duration: const Duration(milliseconds: 5000),
+                ),
+              ),
+              Text("error!!..")
+            ],
+          ),
+        );
+      }
     }
   }
 
@@ -944,12 +1219,13 @@ class _MyPostsState extends State<MyPosts> {
         yourWidget: nextEdit(venuee, blogg, userr));
   }
 
+  var viewers = 0;
   updateBlog() async {
     try {
       DateTime now = DateTime.now();
       var created = DateFormat("yyyy-MM-dd hh:mm:ss").format(now);
       final firebase =
-          FirebaseFirestore.instance.collection("blogs").doc("$doc_idd");
+          FirebaseFirestore.instance.collection("blogg").doc("$doc_idd");
       print("apaaa...");
       // print("${blog_photo}........................");
       storage.Reference ref = storage.FirebaseStorage.instance
@@ -983,16 +1259,14 @@ class _MyPostsState extends State<MyPosts> {
         "blog": u_blog_image != null ? blogurl : blog_phot,
         "user": u_user_image != null ? userurl : user_phot,
         "created": created,
-        "viewers":0
-
-        
+        "viewers": 0
       };
       print("apaaa.3..");
       firebase.set(json);
       Navigator.of(context).pop();
       setState(() {
         myblogs = FirebaseFirestore.instance
-            .collection('blogs')
+            .collection('blogg')
             .where("uid", isEqualTo: uid)
             .snapshots();
       });

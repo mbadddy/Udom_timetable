@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_size_getter/file_input.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/posts.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/services/create_blog.dart';
@@ -108,20 +110,20 @@ class _CreateBlogState extends State<CreateBlog> {
         actions: [
           IconButton(
               onPressed: () async {
-              try {
+                try {
                   await FirebaseAuth.instance.signOut();
-                   Navigator.pop(context);
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('connection problem while logging out'),
-                                  duration: Duration(milliseconds: 1500),
-                                  width: 280.0,
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-              }
-            },
+                  Navigator.pop(context);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('connection problem while logging out'),
+                      duration: Duration(milliseconds: 1500),
+                      width: 280.0,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              },
               icon: Icon(Icons.logout)),
           PopupMenuButton(
             position: PopupMenuPosition.under,
@@ -132,7 +134,7 @@ class _CreateBlogState extends State<CreateBlog> {
               }
             },
             itemBuilder: (context) => options.map((String option) {
-              return PopupMenuItem<String>(
+              return PopupMenuItem<String>( 
                 value: option,
                 child: Text(option),
               );
@@ -243,7 +245,7 @@ class _CreateBlogState extends State<CreateBlog> {
                     const Text('Event Date'),
                     Expanded(
                         child: DateTimePicker(
-  controller: dateController,
+                      controller: dateController,
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                       dateLabelText: 'Date',
@@ -342,39 +344,100 @@ class _CreateBlogState extends State<CreateBlog> {
                           });
                           // CreateBlogg().create( titleController.text, bodyController.text,
                           //  venueController.text, date, _, blog_photo)
+
                           if (titleController.text.isNotEmpty &&
                               bodyController.text.isNotEmpty &&
-                              date!.isNotEmpty && _author_photo!=null && _blog_photo!=null) {
-                            bool answer = await CreateBlogg().create(
-                                titleController.text,
-                                authorController.text,
-                                bodyController.text,
-                                venueController.text,
-                                date,
-                                _author_photo.path,
-                                _blog_photo.path,
-                                deletedd,
-                                context);
-                            setState(() {
-                              executed = answer;
-                            });
-                            titleController.clear();
-                            bodyController.clear();
-                            venueController.clear();
-                            authorController.clear();
-                            dateController.clear();
-                            setState(() {
-                              _author_photo = null;
-                              _blog_photo = null;
-                            });
+                              date!.isNotEmpty &&
+                              _author_photo != null &&
+                              _blog_photo != null) {
+                            DateTime now = DateTime.now();
+                            DateTime input = DateTime.parse(date!);
+                            Duration duration = input.difference(now);
+                            print("${duration.inDays} hours..................");
+                            final b_size =
+                                ImageSizeGetter.getSize(FileInput(_blog_photo));
+                            final u_size = ImageSizeGetter.getSize(
+                                FileInput(_author_photo));
 
-                            date = '';
+                            print(
+                                "blog photo w ${b_size.width} h ${b_size.height} user photo w ${u_size.width} h ${u_size.height}");
+                            if (((u_size.height < 210 || u_size.height > 330) ||
+                                u_size.width != 400)) {
+                              setState(() {
+                                _author_photo = null;
+                                executed = true;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'author image size error! please choose another one !.'),
+                                    duration: Duration(milliseconds: 1500),
+                                    width: 280.0,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              });
+                            } else if (duration.inDays < 0) {
+                              setState(() {
+                                dateController.clear();
+                                executed = true;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Incorrect date!.'),
+                                    duration: Duration(milliseconds: 1500),
+                                    width: 280.0,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              });
+                            } else if (((b_size.height < 210 ||
+                                    b_size.height > 330) ||
+                                b_size.width != 400)) {
+                              setState(() {
+                                _blog_photo = null;
+                                executed = true;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Blog image size error! please choose another one !.'),
+                                    duration: Duration(milliseconds: 1500),
+                                    width: 280.0,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              });
+                            } else {
+                              bool answer = await CreateBlogg().create(
+                                  titleController.text,
+                                  authorController.text,
+                                  bodyController.text,
+                                  venueController.text,
+                                  date,
+                                  _author_photo.path,
+                                  _blog_photo.path,
+                                  deletedd,
+                                  context);
+                              setState(() {
+                                executed = answer;
+                              });
+                              titleController.clear();
+                              bodyController.clear();
+                              venueController.clear();
+                              authorController.clear();
+                              dateController.clear();
+                              setState(() {
+                                _author_photo = null;
+                                _blog_photo = null;
+                              });
+
+                              date = '';
+                            }
                           } else {
                             setState(() {
                               executed = true;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('all fields are required!.'),
+                                  content: Text('all fields are required!. otherwise re-enter your date'),
                                   duration: Duration(milliseconds: 1500),
                                   width: 280.0,
                                   behavior: SnackBarBehavior.floating,

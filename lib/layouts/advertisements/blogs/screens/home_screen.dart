@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/login.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/allposts.dart';
+import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_create_blog.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/widgets/blog_posts.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/widgets/recent_posts.dart';
 
@@ -20,13 +22,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     myblogs = FirebaseFirestore.instance
-        .collection('blogs')
+        .collection('blogg')
         .orderBy("created", descending: true)
         .limit(10)
         .snapshots();
 
     pop_blogs = FirebaseFirestore.instance
-        .collection('blogs')
+        .collection('blogg')
         .orderBy("viewers", descending: true)
         .limit(10)
         .snapshots();
@@ -75,11 +77,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontWeight: FontWeight.bold)),
                   Row(
                     children: <Widget>[
-                     
                       IconButton(
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => LoginPage()));
+                          onPressed: () async {
+                            if (await FirebaseAuth.instance.currentUser !=
+                                null) {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => CreateBlog()));
+                            } else {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => LoginPage()));
+                            }
                           },
                           icon: Icon(Icons.add, size: 30, color: appColr))
                     ],
@@ -172,5 +179,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }

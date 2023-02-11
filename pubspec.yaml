@@ -72,6 +72,7 @@ dependencies:
   checkmark: ^0.0.2+1
   platform_device_id: ^1.0.1
   device_info_plus: ^8.0.0
+  image_size_getter: ^2.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -124,6 +125,10 @@ flutter:
     - assets/images/engineer.jpg
     - assets/images/tiba1.jpg
     - assets/images/logo_prev_ui.png
+    - assets/images/no_content.png
+    - assets/images/no_favourate.jpg
+    - assets/images/more.jpg
+    - assets/images/oops.png
    
   # To add assets to your application, add an assets section, like this:
   # assets:

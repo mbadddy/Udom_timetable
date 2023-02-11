@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:udom_timetable/Tranlation/translate.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/combine/allcombines.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/themes.dart';
@@ -24,12 +23,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   PageController? _pageController;
-   Timer? _pageAnimationTimer;
+  Timer? _pageAnimationTimer;
   int _page = 0;
 
-void _animatePages() {
+  void _animatePages() {
     if (_pageController == null) return;
- 
+
     if (_page < 2) {
       _pageController?.nextPage(
         duration: const Duration(milliseconds: 700),
@@ -37,36 +36,42 @@ void _animatePages() {
       );
     }
   }
- bool adLoaded=false;
-    late BannerAd mybanner;
- @override
+
+  bool adLoaded = false;
+  late BannerAd mybanner;
+  @override
   void initState() {
     _pageController = PageController();
-    _pageAnimationTimer =Timer.periodic(const Duration(seconds:5), (timer) {_animatePages(); });
-    super.initState();
-    final BannerAdListener listene=BannerAdListener(
-  onAdLoaded: (ad) {
-    setState(() {
-      adLoaded=true;
-      print("ad loaded");
+    _pageAnimationTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      _animatePages();
     });
-  },
-  onAdFailedToLoad: (ad, error) {
-    print("add $ad erro $error");
-  },
-  onAdOpened: (ad) {
-    print("ad $ad is opened");
-  },
-) ; 
-     mybanner=BannerAd(size: AdSize.banner,
-     listener:listene,
-     adUnitId: Platform.isAndroid?'ca-app-pub-3940256099942544/6300978111':'ca-app-pub-3940256099942544/6300978111',
-     request: AdRequest());
+    super.initState();
+    final BannerAdListener listene = BannerAdListener(
+      onAdLoaded: (ad) {
+        setState(() {
+          adLoaded = true;
+          print("ad loaded");
+        });
+      },
+      onAdFailedToLoad: (ad, error) {
+        print("add $ad erro $error");
+      },
+      onAdOpened: (ad) {
+        print("ad $ad is opened");
+      },
+    );
+    mybanner = BannerAd(
+        size: AdSize.banner,
+        listener: listene,
+        adUnitId: Platform.isAndroid
+            ? 'ca-app-pub-3940256099942544/6300978111'
+            : 'ca-app-pub-3940256099942544/6300978111',
+        request: AdRequest());
 
+    mybanner.load();
+  }
 
-mybanner.load();
-}
-@override
+  @override
   void dispose() {
     _pageAnimationTimer?.cancel();
     _pageAnimationTimer = null;
@@ -75,131 +80,120 @@ mybanner.load();
   }
 
   void popupAction(String option) {
-    if(option=='Setting'){
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => Setting()));
+    if (option == 'Setting') {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Setting()));
     }
-    if(option=='Combines'){
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => AllCombine()));   
+    if (option == 'Combines') {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => AllCombine()));
     }
-      if(option=='translate'){
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => TranlateWord()));   
-    }
-         print(option);
+    print(option);
   }
 
-  final List<Widget> slider=[
-                 ContentSlider(image: 'assets/images/udom1.jpg',
-                 title: 'Prof. Lughano J. Kusiluka', 
-                 subtitle: 'Vice Chancellor'),
-                 ContentSlider(image: 'assets/images/udom3.jpg',
-                 title: '13th Graduation Ceremony', 
-                 subtitle: 'University of Dodoma'),
-                 ContentSlider(image: 'assets/images/udom2.jpg',
-                 title: 'Best Students', 
-                 subtitle: 'At 13th Graduation Ceremony 2022'),
+  final List<Widget> slider = [
+    ContentSlider(
+        image: 'assets/images/udom1.jpg',
+        title: 'Prof. Lughano J. Kusiluka',
+        subtitle: 'Vice Chancellor'),
+    ContentSlider(
+        image: 'assets/images/udom3.jpg',
+        title: '13th Graduation Ceremony',
+        subtitle: 'University of Dodoma'),
+    ContentSlider(
+        image: 'assets/images/udom2.jpg',
+        title: 'Best Students',
+        subtitle: 'At 13th Graduation Ceremony 2022'),
   ];
   @override
   Widget build(BuildContext context) {
-    Color appbar=appColr;
-  
- final ThemeData mode = Theme.of(context);
-var whichMode=mode.brightness;
-if(whichMode==Brightness.dark){
-  setState(() {
-          appbar=Colors.black12;
+    Color appbar = appColr;
+
+    final ThemeData mode = Theme.of(context);
+    var whichMode = mode.brightness;
+    if (whichMode == Brightness.dark) {
+      setState(() {
+        appbar = Colors.black12;
       });
-}
-     List<String> options = ['Setting', 'Combines',"translate"];
-    Size size=MediaQuery.of(context).size;
+    }
+    List<String> options = ['Setting', 'Combines'];
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title:new Text("Home"),
-        
+        title: new Text("Home"),
         backgroundColor: appbar,
         actions: [
-        PopupMenuButton(
-          position: PopupMenuPosition.under,
-          onSelected:popupAction,
-          itemBuilder: (context) => 
-        
-         options.map((String option) {
+          PopupMenuButton(
+            position: PopupMenuPosition.under,
+            onSelected: popupAction,
+            itemBuilder: (context) => options.map((String option) {
               return PopupMenuItem<String>(
-                 value: option,
+                value: option,
                 child: Text(option),
               );
             }).toList(),
-        )
+          )
         ],
-        
       ),
-   
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-             Expanded(
-              flex: 1,
-              child: 
-             PageView.builder(
-              itemBuilder: (context, index) {
-                return Container(
-                  alignment:Alignment.center,
-                  width: 50,
-                  height: 50,
-                  child: slider[index % slider.length],
-                  );
-
-              },
-             controller: _pageController,
-             reverse: false,
-           
-             )
-             ),
-             Expanded(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+                flex: 1,
+                child: PageView.builder(
+                  itemBuilder: (context, index) {
+                    return Container(
+                      alignment: Alignment.center,
+                      width: 50,
+                      height: 50,
+                      child: slider[index % slider.length],
+                    );
+                  },
+                  controller: _pageController,
+                  reverse: false,
+                )),
+            Expanded(
               flex: 2,
               child: ListView(
-        physics: ClampingScrollPhysics(),
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(children:  [
-                  SizedBox(
-                    height: 15,
+                physics: ClampingScrollPhysics(),
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(children: [
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Wallet(),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          MainMenu(),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          XpBar(
+                            banner: mybanner,
+                            isLoaded: adLoaded,
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          // Wallet(),
+                        ]),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                    ],
                   ),
-                  Wallet(),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  MainMenu(),
-                  SizedBox(
-                    height: 20,
-                  ),
-                   XpBar(banner: mybanner, isLoaded: adLoaded,),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  // Wallet(),
-                ]),
+                ],
               ),
-             
-              const SizedBox(
-                height: 20,
-              ),
-           
-            ],
-          ),
-        ],
-      ),
-      )
-         
-
-
-
-      ]),
-      
+            )
+          ]),
     );
   }
 }

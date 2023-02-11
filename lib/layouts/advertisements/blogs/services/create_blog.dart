@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as storage;
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 
 class CreateBlogg {
@@ -14,48 +13,28 @@ class CreateBlogg {
       bool returned;
       final uid = FirebaseAuth.instance.currentUser!.uid;
       int entryNum = await countEntriesInZoneWard(uid) + 1;
-      Box<List<String>>? deleteed = Hive.box<List<String>>("del_docs");
-      deleted = deleteed.get("docs");
-      if (deleted != null) {
-        print("co null $deleted compare $entryNum");
-        if (!deleted.contains(entryNum.toString())) {
-          print("ipoooooooo");
+      
+        CollectionReference reff =
+            FirebaseFirestore.instance.collection("blogg");
+        reff.get().then((value)async {
+          List<Map<dynamic, dynamic>>? list = [];
+          list = value.docs.map((doc) => doc.data()).cast<Map>().toList();
+            
+          for(var doc in list){
+              
+                if(doc["doc_id"]==entryNum){
+                 entryNum++;
+                }
+          }
+          returned = await postData(entryNum, uid, title, body, date, venue,
+              context, author, author_photo, blog_photo);
+          print("it extists...imaadd $entryNum...............");
 
-          deleted.add(entryNum.toString());
-          entryNum = int.parse(deleted[0]);
-          deleted.remove(deleted[0]);
-          deleteed.put("docs", deleted);
-        } else {
-          print("haipoooooooo");
-          for (var x = 0; x < deleted.length; x++) {
-            if (deleted[x] != entryNum.toString()) {
-              entryNum = int.parse(deleted[x]);
-              print("${deleted[x]} now equal entry $entryNum");
-              deleted.remove(deleted[x]);
-              print("${deleted[x]} removed");
-              deleteed.put("docs", deleted);
-            } else {
-              deleted.remove(deleted[x]);
-              deleteed.put("docs", deleted);
-            }
-          }
-        }
-        returned = await postData(entryNum, uid, title, body, date, venue,
-            context, author, author_photo, blog_photo);
-      } else {
-        DocumentReference reff =
-            FirebaseFirestore.instance.collection("blogs").doc("$entryNum");
-        reff.get().then((value) {
-          if (value.exists) {
-            entryNum++;
-            print("it extists...imaadd $entryNum...............");
-          }
+          return returned;
         });
-        returned = await postData(entryNum, uid, title, body, date, venue,
-            context, author, author_photo, blog_photo);
-      }
+    
 
-      return returned;
+      return true;
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -73,8 +52,9 @@ class CreateBlogg {
     // CollectionReference blogs=FirebaseFirestore.instance.collection('blogs');
     // DocumentSnapshot result=await blogs.doc("").get();
     final QuerySnapshot result2 =
-        await FirebaseFirestore.instance.collection('blogs').get();
+        await FirebaseFirestore.instance.collection('blogg').get();
     final List<DocumentSnapshot> documents = result2.docs;
+    print("zipo ${documents.length}");
     return documents.length;
   }
 
@@ -84,7 +64,7 @@ class CreateBlogg {
     print("it new $entrynum...................");
     var created = DateFormat("yyyy-MM-dd hh:mm:ss").format(now);
     final firebase =
-        FirebaseFirestore.instance.collection("blogs").doc("$entrynum");
+        FirebaseFirestore.instance.collection("blogg").doc("$entrynum");
     storage.UploadTask uploadtask;
     storage.Reference ref = storage.FirebaseStorage.instance
         .ref()

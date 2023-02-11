@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/Actual_ratiba/ratiba_card.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/Actual_ratiba/summary_card.dart';
+import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/services/Modal/timetable.dart';
 import 'package:udom_timetable/services/timetable_Service.dart';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
@@ -402,6 +403,7 @@ setState(() {
 });
 }
   bool isOnline=false;
+  bool haserror=true;
   @override
   Widget build(BuildContext context) {
        AndroidAlarmManager.periodic(const Duration(seconds: 60),2,callBackDyDispacher,params: {
@@ -437,7 +439,13 @@ setState(() {
        future: timetable,
        builder: (context, snapshot) {
 
+           
          if (snapshot.hasData) {
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  setState(() {
+                    haserror=false;
+                  });
+                });
           return ListView.builder(
             itemCount: prog!=null?snapshot.data!.data.where((element) => 
             element.studentId==prog && element.day==dy).toList().length:1,
@@ -2023,12 +2031,13 @@ setState(() {
    
 
     // By default, show a loading spinner.
-    return const SizedBox(width: 20,height: 50,child: CircularProgressIndicator(),) ;
+    return Center(child: CircularProgressIndicator(color: appColr,strokeWidth: 3.0,)) ;
           },
             )
       )
-      )
+      ),
 
+// haserror? Center(child: CircularProgressIndicator(color: appColr,strokeWidth: 3.0,)) :Text("")
       ],)
     );
   }

@@ -237,7 +237,7 @@ class MainMenu extends StatelessWidget {
                      borderRadius: BorderRadius.circular(18),
                     child:
                       Image(
-                     image: AssetImage("assets/images/social.jpg"),
+                     image: AssetImage("assets/images/more.jpg"),
                      fit: BoxFit.cover,
                      ),
                     ),

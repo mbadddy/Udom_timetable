@@ -1,41 +1,61 @@
 
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
+
+String blogToJson(Blog data) => json.encode(data.toJson());
+
 class Blog {
-  String author_url;
-  String blog_url;
-  String title;
-  String body;
-  String date;
-  String venue;
-  Blog({
-    required this.author_url,
-    required this.blog_url,
-    required this.title,
-    required this.body,
-    required this.date,
-    required this.venue,
-  });
+    Blog({
+        required this.date,
+        required this.authorName,
+        required this.venue,
+        required this.uid,
+        required this.viewers,
+        required this.created,
+        required this.body,
+        required this.title,
+        required this.blog,
+        required this.user,
+        required this.docId,
+    });
 
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'author_url': author_url,
-      'blog_url': blog_url,
-      'title': title,
-      'body': body,
-      'date': date,
-      'venue': venue,
-    };
-  }
+    DateTime date;
+    String authorName;
+    String venue;
+    String uid;
+    int viewers;
+    DateTime created;
+    String body;
+    String title;
+    String blog;
+    String user;
+    int docId;
 
-  static Blog fromMap(Map<String, dynamic> map) {
-    return Blog(
-      author_url: map['author_url'] as String,
-      blog_url: map['blog_url'] as String,
-      title: map['title'] as String,
-      body: map['body'] as String,
-      date: map['date'] as String,
-      venue: map['venue'] as String,
+    Blog fromJson(Map<String, dynamic> json) => Blog(
+        date: DateTime.parse(json["date"]),
+        authorName: json["author_name"],
+        venue: json["venue"],
+        uid: json["uid"],
+        viewers: json["viewers"],
+        created: DateTime.parse(json["created"]),
+        body: json["body"],
+        title: json["title"],
+        blog: json["blog"],
+        user: json["user"],
+        docId: json["doc_id"],
     );
-  }
 
+    Map<String, dynamic> toJson() => {
+        "date": "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
+        "author_name": authorName,
+        "venue": venue,
+        "uid": uid,
+        "viewers": viewers,
+        "created": created.toIso8601String(),
+        "body": body,
+        "title": title,
+        "blog": blog,
+        "user": user,
+        "doc_id": docId,
+    };
 }

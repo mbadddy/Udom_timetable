@@ -28,9 +28,7 @@ Future getPreference() async{
 
    bool check=false;
    final String title = 'language';
-   String dropdownvalue = 'English';
   // final LanguageController _languageController = Get.find();
-final List<String> lang=["English","Swahili","Arabic","Hindi","German","French"];
   //auto switch
   //
 bool? isSwitchedd;
@@ -186,47 +184,7 @@ if(whichMode==Brightness.dark){
         const Divider(),
         Column(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.045,
-                ),
-              ),
-              DropdownButton<String>(
-                iconSize: MediaQuery.of(context).size.width * 0.045,
-                isExpanded: false,
-                isDense: false,
-                value: dropdownvalue,
-                onChanged: (symbol) {
-                   setState(() {
-                   
-                   });
-                },
-                items: lang.map((String e) {
-                        return DropdownMenuItem<String>(
-                          onTap: () {
-                            
-                          },
-                      child: Text(
-                        e,
-                        style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.04,
-                        ),
-                      ),
-                      value: e,
-                    ); 
-                }).toList(),     
-                  
-              ),
-            ],
-          ),
-        ),
-        const Divider(),
+       
 
                 Container(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),

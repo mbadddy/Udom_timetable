@@ -75,19 +75,19 @@ class _AllPostsState extends State<AllPosts> {
   }
 
   late Stream<QuerySnapshot<Map<String, dynamic>>> allblogs;
-  CollectionReference blogs = FirebaseFirestore.instance.collection('blogs');
+  CollectionReference blogs = FirebaseFirestore.instance.collection('blogg');
   @override
   void initState() {
     blog_images = Hive.box<Uint8List>("blogimages");
     _AnimatedFlutterLogoState();
     if (widget.title.toString().contains("Popular")) {
       allblogs = FirebaseFirestore.instance
-          .collection('blogs')
+          .collection('blogg')
           .orderBy("viewers", descending: true)
           .snapshots();
     } else {
       allblogs = FirebaseFirestore.instance
-          .collection('blogs')
+          .collection('blogg')
           .orderBy("created", descending: true)
           .limit(10)
           .snapshots();
@@ -220,10 +220,10 @@ class _AllPostsState extends State<AllPosts> {
                                                             fit: BoxFit.cover)
                                                         : Center(
                                                             child:
-                                                                const CircularProgressIndicator())
+                                                                 CircularProgressIndicator(color: appColr,strokeWidth: 3.0,))
                                                     : Center(
                                                         child:
-                                                            const CircularProgressIndicator())),
+                                                             CircularProgressIndicator(color: appColr,strokeWidth: 3.0,))),
                                           ),
                                           Container(
                                             width: MediaQuery.of(context)
@@ -361,15 +361,15 @@ class _AllPostsState extends State<AllPosts> {
               } else {
                 Center(child: Text("No data is available"));
               }
-              return Center(child: const CircularProgressIndicator());
+              return Center(child:  CircularProgressIndicator(color: appColr,strokeWidth: 3.0,));
             }));
   }
 
   void catchViewer(blog) async {
     final firebase =
-        FirebaseFirestore.instance.collection("blogs").doc("$blog");
+        FirebaseFirestore.instance.collection("blogg").doc("$blog");
     DocumentReference ref =
-        FirebaseFirestore.instance.collection("blogs").doc("$blog");
+        FirebaseFirestore.instance.collection("blogg").doc("$blog");
     String viewers = await ref.get().then(
       (DocumentSnapshot value) {
         return value.get("viewers").toString();
@@ -546,9 +546,9 @@ class CustomSearchDelegate extends SearchDelegate {
 
   void catchViewer(blog) async {
     final firebase =
-        FirebaseFirestore.instance.collection("blogs").doc("$blog");
+        FirebaseFirestore.instance.collection("blogg").doc("$blog");
     DocumentReference ref =
-        FirebaseFirestore.instance.collection("blogs").doc("$blog");
+        FirebaseFirestore.instance.collection("blogg").doc("$blog");
     String viewers = await ref.get().then(
       (DocumentSnapshot value) {
         return value.get("viewers").toString();

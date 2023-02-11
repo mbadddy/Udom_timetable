@@ -9,6 +9,7 @@ import 'package:hive/hive.dart';
 import "package:http/http.dart" as http;
 import 'package:intl/intl.dart';
 import 'package:platform_device_id/platform_device_id.dart';
+import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_screen.dart';
 
 class BlogPosts extends StatefulWidget {
@@ -156,10 +157,10 @@ class _BlogPostsState extends State<BlogPosts> {
                                                   fit: BoxFit.cover)
                                               : Center(
                                                   child:
-                                                      const CircularProgressIndicator())
+                                                      const CircularProgressIndicator(color: Colors.white,strokeWidth: 3.0,))
                                           : Center(
                                               child:
-                                                  const CircularProgressIndicator()))),
+                                                  const CircularProgressIndicator(color: Colors.white,strokeWidth: 3.0,)))),
                               Positioned(
                                 bottom: 10.0,
                                 left: 10.0,
@@ -285,7 +286,7 @@ class _BlogPostsState extends State<BlogPosts> {
               } else {
                 Text("No data is available");
               }
-              return Center(child: const CircularProgressIndicator());
+              return Center(child:  CircularProgressIndicator(color: appColr,strokeWidth: 3.0,));
             }),
         SizedBox(height: 5.0)
       ],
@@ -294,9 +295,9 @@ class _BlogPostsState extends State<BlogPosts> {
 
   catchViewer(blog) async {
     final firebase =
-        FirebaseFirestore.instance.collection("blogs").doc("$blog");
+        FirebaseFirestore.instance.collection("blogg").doc("$blog");
     DocumentReference ref =
-        FirebaseFirestore.instance.collection("blogs").doc("$blog");
+        FirebaseFirestore.instance.collection("blogg").doc("$blog");
     String viewers = await ref.get().then(
       (DocumentSnapshot value) {
         return value.get("viewers").toString();
@@ -310,6 +311,7 @@ class _BlogPostsState extends State<BlogPosts> {
     final data = {"viewers": int.parse("$viewers") + 1};
     String dev_id = await getDeviceInfo();
     Box<List<String>>? deleteed = Hive.box<List<String>>("del_docs");
+    // deleteed.deleteAll(deleteed.keys);
     List<String>? device_views = [];
     List<String>? views = deleteed.get("$dev_id");
     print("device id $dev_id");
