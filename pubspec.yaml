@@ -73,6 +73,8 @@ dependencies:
   platform_device_id: ^1.0.1
   device_info_plus: ^8.0.0
   image_size_getter: ^2.1.2
+  pin_code_fields: ^7.4.0
+  supercharged: ^2.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

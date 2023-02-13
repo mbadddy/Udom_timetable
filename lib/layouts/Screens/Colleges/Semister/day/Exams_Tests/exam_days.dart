@@ -9,6 +9,7 @@ import 'package:udom_timetable/layouts/Screens/Colleges/Semister/alltimetable.da
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/combine/allcombines.dart';
 import 'package:udom_timetable/layouts/Screens/Colleges/Semister/day/day.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
+import 'package:udom_timetable/layouts/advertisements/animated/dialogbox.dart';
 
 class ExamDays extends StatefulWidget {
   String semister;
@@ -389,36 +390,17 @@ void dialog(String day,String programe,String coll,String sem,String year)async{
 
 void display(String coll,String prog,
 String course,String year,String sem,String time_from,
-String venue,String time_to,String day,category){
-  
-
-  showDialog(context: context, builder: (context) {
-    return Dialog(
-        child: Container(
-          
-          child:Padding(padding: EdgeInsets.all(10),
-          child:     
-           Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(padding: EdgeInsets.only(top: 15,bottom: 10),
-              child: Text("Your Exam TimeTable Is As Follows..."),),
-              Text("College: ${coll}"),
-               Text("Programme: ${prog}"),
-               Text("Year: ${year}"),
-               Text("Semister: ${sem}"),
-               Text("Day: ${day}"),
-               Text("Course: ${course}"),
-               Text("Time To: ${time_to}"),
-               Text("Time From: ${time_from}"),
-               Text("Venue: ${venue}"),
-               Text("Category: ${category}"),
-               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(onPressed: () async {
-
-                  if(exambox!.get("e_colleges")!=null){
+String venue,String time_to,String day,category)async{
+      await animated_dialog_box.showScaleAlertBox(
+      context: context,
+      secondButton: MaterialButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(40),
+        ),
+        color: Colors.white,
+        child: Text('Delete'),
+        onPressed: () {
+                if(exambox!.get("e_colleges")!=null){
                     List<String>? collegee=exambox!.get("e_colleges");
                     for(var x=0;x<collegee!.length;x++){
                        if(collegee[x]==coll){
@@ -516,24 +498,42 @@ String venue,String time_to,String day,category){
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("No data Found To Delete")));  
                   }
                   Navigator.pop(context);
-               }, child: Text("Delete")),
-                SizedBox(width: 5,),
-               ElevatedButton(onPressed: () {
-                  Navigator.pop(context);
-               }, child: Text("OK")),
-                ],
-               )
+        },
+      ),
+      firstButton: MaterialButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(40),
+        ),
+        color: Colors.white,
+        child: Text('Ok'),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+      yourWidget:Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(padding: EdgeInsets.only(top: 15,bottom: 10),
+              child: Text("Your Exam TimeTable Is As Follows..."),),
+              Text("College: ${coll}"),
+               Text("Programme: ${prog}"),
+               Text("Year: ${year}"),
+               Text("Semister: ${sem}"),
+               Text("Day: ${day}"),
+               Text("Course: ${course}"),
+               Text("Time To: ${time_to}"),
+               Text("Time From: ${time_from}"),
+               Text("Venue: ${venue}"),
+               Text("Category: ${category}"),
+              
               
                
             ],
           ),
-          ),
-          
-      
-        ),
     );
-          } ,
-  );
+
+  
 }
 
    List<String>? collegess;

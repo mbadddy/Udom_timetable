@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 
 class CustomTextField extends StatefulWidget {
     final TextInputType type;
@@ -38,10 +39,20 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
+
+    Color input = Colors.white;
+
+    final ThemeData mode = Theme.of(context);
+    var whichMode = mode.brightness;
+    if (whichMode == Brightness.dark) {
+      setState(() {
+        input = Colors.black54;
+      });
+    }
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
+        color: input,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.3),

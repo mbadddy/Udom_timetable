@@ -1,92 +1,49 @@
 {
   "project_info": {
-    "project_number": "115618874296",
-    "project_id": "udom-timetable",
-    "storage_bucket": "udom-timetable.appspot.com"
+    "project_number": "761543835614",
+    "project_id": "udomtimatable",
+    "storage_bucket": "udomtimatable.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:115618874296:android:550c709cd59abc2394c54d",
+        "mobilesdk_app_id": "1:761543835614:android:8c2a3104b6e03556ed674f",
         "android_client_info": {
           "package_name": "com.anuarybry.udomtimetable"
         }
       },
       "oauth_client": [
         {
-          "client_id": "115618874296-i3iopvj0vvcgl95mpor6u0ai7kkeqk0k.apps.googleusercontent.com",
+          "client_id": "761543835614-5a86jp2keo3r78ri34mm7iqamqvcd26c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anuarybry.udomtimetable",
+            "certificate_hash": "02c148f68a7ac56298deb6962bd1bd2f58048c36"
+          }
+        },
+        {
+          "client_id": "761543835614-gmmog0em8s0jgk1r35sngqqfm81se18m.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBGMVcMDAtHfgzxtrBBVeGra_hTkEYDyDk"
+          "current_key": "AIzaSyDexSHs9CGrp4bg5pKFiYlbY21FfVS95yA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "115618874296-i3iopvj0vvcgl95mpor6u0ai7kkeqk0k.apps.googleusercontent.com",
+              "client_id": "761543835614-gmmog0em8s0jgk1r35sngqqfm81se18m.apps.googleusercontent.com",
               "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:115618874296:android:b84c39d3af738e9594c54d",
-        "android_client_info": {
-          "package_name": "com.anuarybryton.udom_timetable"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "115618874296-i3iopvj0vvcgl95mpor6u0ai7kkeqk0k.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBGMVcMDAtHfgzxtrBBVeGra_hTkEYDyDk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
+            },
             {
-              "client_id": "115618874296-i3iopvj0vvcgl95mpor6u0ai7kkeqk0k.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:115618874296:android:0684d9b3afdf795794c54d",
-        "android_client_info": {
-          "package_name": "com.example.udomtimetable"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "115618874296-i3iopvj0vvcgl95mpor6u0ai7kkeqk0k.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBGMVcMDAtHfgzxtrBBVeGra_hTkEYDyDk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "115618874296-i3iopvj0vvcgl95mpor6u0ai7kkeqk0k.apps.googleusercontent.com",
-              "client_type": 3
+              "client_id": "761543835614-m0itkmmiqk8esms13qau0bupqo7mvqjm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.anuarybryton.udomtimetable"
+              }
             }
           ]
         }

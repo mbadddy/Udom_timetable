@@ -1,19 +1,22 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/login.dart';
-import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_create_blog.dart';
 
 class VerifyEmail extends StatefulWidget {
   final String email;
+  final String phone;
   const VerifyEmail({
     Key? key,
     required this.email,
+    required this.phone,
   }) : super(key: key);
 
   @override
@@ -21,8 +24,35 @@ class VerifyEmail extends StatefulWidget {
 }
 
 class _VerifyEmailState extends State<VerifyEmail> {
+  Box<String>? otp_credential;
   bool isEmailVerified = false;
   Timer? timer;
+  bool isMasgSent = false;
+  void sendOTP(String phone) async {
+   await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: '$phone',
+      verificationCompleted: (PhoneAuthCredential credential) {
+
+         ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Account is successfully verified"))); 
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        if (e.code == 'invalid-phone-number') {
+            ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("The provided phone number is not valid.")));
+        }
+      },
+      codeSent: (String verificationId, int? resendToken) {
+
+           otp_credential!.put("myotp", "$verificationId");
+           otp_credential!.get("myotp");
+               ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Verification code is successfully sent to $phone")));
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
+    );
+  }
+
   checkEmailVerified() async {
     await FirebaseAuth.instance.currentUser?.reload();
 
@@ -33,9 +63,11 @@ class _VerifyEmailState extends State<VerifyEmail> {
     if (isEmailVerified) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Email Successfully Verified")));
-      
+
       timer?.cancel();
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage(),));
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => LoginPage(),
+      ));
     }
   }
 
@@ -47,6 +79,10 @@ class _VerifyEmailState extends State<VerifyEmail> {
 
   @override
   void initState() {
+     otp_credential = Hive.box<String>("otp");
+     if(Platform.isAndroid){
+       sendOTP(widget.phone);
+     }
     FirebaseAuth.instance.currentUser?.sendEmailVerification();
     timer =
         Timer.periodic(const Duration(seconds: 3), (_) => checkEmailVerified());
@@ -93,6 +129,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
             padding: EdgeInsets.all(20),
             child: Text("Resend An Email You doesn't see Link in yor email"),
           ),
+       
           Padding(
             padding: EdgeInsets.all(15),
             child: ElevatedButton(
@@ -104,7 +141,25 @@ class _VerifyEmailState extends State<VerifyEmail> {
                   }
                 },
                 child: Text("Resend")),
-          )
+          ),
+             SizedBox(height: 5,),
+              Padding(
+            padding: EdgeInsets.all(20),
+            child: Text("Resend An Verification Code if Not Sent to ${widget.phone} "),
+
+          ),
+          Padding(
+            padding: EdgeInsets.all(15),
+            child: ElevatedButton(
+                onPressed: () {
+                  try {
+                    sendOTP(widget.phone);
+                  } catch (e) {
+                    debugPrint('$e');
+                  }
+                },
+                child: Text("Resend")),
+          ),
         ],
       )),
     );

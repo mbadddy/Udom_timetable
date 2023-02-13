@@ -40,7 +40,9 @@ class _BlogScreenState extends State<BlogScreen> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.45,
                   child: ClipRRect(
-                    child: Image.memory(blog_images!.get("${widget.blog['doc_id']}")!,
+                    child: Image.memory(
+                        filterQuality: FilterQuality.high,
+                      blog_images!.get("${widget.blog['doc_id']}")!,
                         fit: BoxFit.cover),
                   ),
                 ),

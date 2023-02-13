@@ -152,6 +152,7 @@ class _BlogPostsState extends State<BlogPosts> {
                                                       "${blog['doc_id']}") !=
                                                   null
                                               ? Image.memory(
+                                                 filterQuality: FilterQuality.high,
                                                   blog_images!.get(
                                                       "${blog['doc_id']}")!,
                                                   fit: BoxFit.cover)

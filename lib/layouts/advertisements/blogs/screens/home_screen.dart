@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (await FirebaseAuth.instance.currentUser !=
                                 null) {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => CreateBlog()));
+                                  builder: (context) => LoginPage()));
                             } else {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => LoginPage()));

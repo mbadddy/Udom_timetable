@@ -50,20 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBGMVcMDAtHfgzxtrBBVeGra_hTkEYDyDk',
-    appId: '1:115618874296:android:550c709cd59abc2394c54d',
-    messagingSenderId: '115618874296',
-    projectId: 'udom-timetable',
-    storageBucket: 'udom-timetable.appspot.com',
+    apiKey: 'AIzaSyDexSHs9CGrp4bg5pKFiYlbY21FfVS95yA',
+    appId: '1:761543835614:android:8c2a3104b6e03556ed674f',
+    messagingSenderId: '761543835614',
+    projectId: 'udomtimatable',
+    storageBucket: 'udomtimatable.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAcO3u0z9O-8qLQxVH4V5T2bFe4tB7eEWk',
-    appId: '1:115618874296:ios:479cdd11484cbda394c54d',
-    messagingSenderId: '115618874296',
-    projectId: 'udom-timetable',
-    storageBucket: 'udom-timetable.appspot.com',
-    iosClientId: '115618874296-4vhdrmg3o7p11uvdte98jr3r24qslq6n.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCf_2bmAaIfAMlTl40Rfz-WBwChIvwek1k',
+    appId: '1:761543835614:ios:89473a1e736aa46ded674f',
+    messagingSenderId: '761543835614',
+    projectId: 'udomtimatable',
+    storageBucket: 'udomtimatable.appspot.com',
+    androidClientId: '761543835614-5a86jp2keo3r78ri34mm7iqamqvcd26c.apps.googleusercontent.com',
+    iosClientId: '761543835614-m0itkmmiqk8esms13qau0bupqo7mvqjm.apps.googleusercontent.com',
     iosBundleId: 'com.anuarybryton.udomtimetable',
   );
 }

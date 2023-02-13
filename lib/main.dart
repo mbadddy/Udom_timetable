@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +37,7 @@ void main() async {
   await Hive.openBox<List<String>>("combine");
   await Hive.openBox<List<String>>("Exams");
   await Hive.openBox<Uint8List>("blogimages");
+  await Hive.openBox<String>("otp");
   await Hive.openBox<List<String>>("timetable");
   await Hive.openBox<List<String>>("del_docs");
   await Hive.openBox<String>("swahili");

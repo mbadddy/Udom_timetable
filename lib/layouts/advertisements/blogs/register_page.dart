@@ -15,22 +15,29 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-
   TextEditingController emailTFieldController = TextEditingController();
+  TextEditingController phoneTFieldController = TextEditingController();
   TextEditingController typeTFieldController = TextEditingController();
   TextEditingController confirm = TextEditingController();
   String imageFileController = '';
-  bool registeAttempt=false;
+  bool registeAttempt = false;
   final _formKey = GlobalKey<FormState>();
-  String message='';
-bool isEmail(String? value) =>
+  String message = '';
+  bool isEmail(String? value) =>
       value!.isEmpty ||
       !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
           .hasMatch(value);
- bool isPassword(String? value) =>
-      value!.isEmpty || value.length<7 ||
+  bool isPhone(String? value) =>
+      value!.isEmpty ||
+      ((!value.toString().startsWith("0", 0) ||
+              value.toString().length != 10) &&
+          (!value.toString().startsWith("+255") ||
+              value.toString().length != 13));
+  bool isPassword(String? value) =>
+      value!.isEmpty ||
+      value.length < 7 ||
       !RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$').hasMatch(value);
-bool itMatch(String? value)=>value!=typeTFieldController.text;
+  bool itMatch(String? value) => value != typeTFieldController.text;
   @override
   void dispose() {
     emailTFieldController.dispose();
@@ -40,170 +47,196 @@ bool itMatch(String? value)=>value!=typeTFieldController.text;
 
   @override
   Widget build(BuildContext context) {
-             Color appbar=appColr;
-         Color appbar2=appColr2;
-         Color log_page=Colors.white;
-         Color log_txt=Colors.black87;
-         Color input=Colors.white;
-   
-   
- final ThemeData mode = Theme.of(context);
-var whichMode=mode.brightness;
-if(whichMode==Brightness.dark){
-  setState(() {
-          appbar=Colors.black12;
-          appbar2=Colors.black38;
-          log_page=Colors.black26;
-          log_txt=Colors.white;
-          input=Colors.black54;
+    Color appbar = appColr;
+    Color appbar2 = appColr2;
+    Color log_page = Colors.white;
+    Color log_txt = Colors.black87;
+    Color input = Colors.white;
+
+    final ThemeData mode = Theme.of(context);
+    var whichMode = mode.brightness;
+    if (whichMode == Brightness.dark) {
+      setState(() {
+        appbar = Colors.black12;
+        appbar2 = Colors.black38;
+        log_page = Colors.black26;
+        log_txt = Colors.white;
+        input = Colors.black54;
       });
-}
-    return  Scaffold(
-        appBar: AppBar(backgroundColor: appbar,
+    }
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: appbar,
         centerTitle: true,
         title: Text("Registration"),
-      leading: IconButton(onPressed: () {
-        Navigator.of(context).pop();
-      }, icon: Icon(Icons.arrow_back_ios_new)),),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.only(top: 30),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Enter Your Credentials',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-                  ),
-          
-                  const Divider(),
-                  AnimatedRow(
-                    title: 'email',
-                    controller: emailTFieldController,
-                    validator: (value) =>
-                        isEmail(value.toString().trim()) ? 'email is incorrect' : null,
-                    isEditable: false, type: TextInputType.emailAddress, obcure: false,
-                  ),
-                  AnimatedRow(
-                    title: 'Password',
-                    controller: typeTFieldController,
-                    validator: (value) => isPassword(value.toString().trim())
-                        ? 'weak passowrd'
-                        : null,
-                    isEditable: false, type: TextInputType.visiblePassword, obcure: true,
-                  ),
-                  AnimatedRow(
-                    title: 'Pass Confirm',
-                    controller: confirm,
-                    validator: (value) => itMatch(value.toString().trim())
-                        ? "doesn't match"
-                        : null,
-                    isEditable: false, type: TextInputType.visiblePassword, obcure: true,
-                  ),
-                  const Divider(),
-                 message.isNotEmpty?
-                   Text(
-                    '${message}',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15,color: Colors.red),
-                  ):Text(''),
-                ],
-              ),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.arrow_back_ios_new)),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(top: 30),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Enter Your Credentials',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                ),
+                const Divider(),
+                AnimatedRow(
+                  title: 'email',
+                  controller: emailTFieldController,
+                  validator: (value) => isEmail(value.toString().trim())
+                      ? 'email is incorrect'
+                      : null,
+                  isEditable: false,
+                  type: TextInputType.emailAddress,
+                  obcure: false,
+                ),
+                AnimatedRow(
+                  title: 'Phone',
+                  controller: phoneTFieldController,
+                  validator: (value) => isPhone(value.toString().trim())
+                      ? 'phone is incorrect'
+                      : null,
+                  isEditable: false,
+                  type: TextInputType.phone,
+                  obcure: false,
+                ),
+                AnimatedRow(
+                  title: 'Password',
+                  controller: typeTFieldController,
+                  validator: (value) => isPassword(value.toString().trim())
+                      ? 'weak passowrd'
+                      : null,
+                  isEditable: false,
+                  type: TextInputType.visiblePassword,
+                  obcure: true,
+                ),
+                AnimatedRow(
+                  title: 'Pass Confirm',
+                  controller: confirm,
+                  validator: (value) =>
+                      itMatch(value.toString().trim()) ? "doesn't match" : null,
+                  isEditable: false,
+                  type: TextInputType.visiblePassword,
+                  obcure: true,
+                ),
+                const Divider(),
+                message.isNotEmpty
+                    ? Text(
+                        '${message}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.red),
+                      )
+                    : Text(''),
+              ],
             ),
           ),
         ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10))),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: 8.0,
-                        horizontal: MediaQuery.of(context).size.width * 0.1),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: mainBackupColor),
-                    ),
-                  )),
-              ElevatedButton(
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            OutlinedButton(
+                onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: appbar,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10))),
-                onPressed: () {
-                  setState(() {
-                    registeAttempt=true;
-                  });
-                   if(_formKey.currentState!.validate()){
-                       registerUser(emailTFieldController.text,confirm.text);
-                      
-                   }
-                
-                },
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                       vertical: 8.0,
-                      horizontal: MediaQuery.of(context).size.width * 0.15),
-                  child: registeAttempt?
-                  const CircularProgressIndicator():
-                  const Text(
-                    'Submit',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+                      horizontal: MediaQuery.of(context).size.width * 0.1),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: mainBackupColor),
                   ),
-                ),
+                )),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: appbar,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              onPressed: () {
+                setState(() {
+                  registeAttempt = true;
+                });
+                if (_formKey.currentState!.validate()) {
+                  registerUser(emailTFieldController.text, confirm.text,
+                      phoneTFieldController.text);
+                  emailTFieldController.clear();
+                  confirm.clear();
+                  typeTFieldController.clear();
+                  phoneTFieldController.clear();
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: MediaQuery.of(context).size.width * 0.15),
+                child: registeAttempt
+                    ? const CircularProgressIndicator()
+                    : const Text(
+                        'Submit',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      )
-    ;
+      ),
+    );
   }
-  
-  Future<void> registerUser(String emailAddress, String password) async {
-     try {
-  await FirebaseAuth.instance.createUserWithEmailAndPassword(
-    email: emailAddress,
-    password: password,
-  );
-  Navigator.of(context).push(MaterialPageRoute(builder: (context) => VerifyEmail(email: emailAddress,),));
 
-} on FirebaseAuthException catch (e) {
-  setState(() {
-     registeAttempt=false;
-  });
-  if (e.code == 'weak-password') {
-    setState(() {
-      message="The password provided is too weak.";
-    });
-   
-  } else if (e.code == 'email-already-in-use') {
-    setState(() {
-    message="The account already exists for that email.";
-    });
-    
-  
-  }
-} catch (e) {
+  Future<void> registerUser(
+      String emailAddress, String password, String phone) async {
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => VerifyEmail(
+          email: emailAddress, phone: phone,
+        ),
+      ));
+      // sendOTP(phone);
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        registeAttempt = false;
+      });
+      if (e.code == 'weak-password') {
+        setState(() {
+          message = "The password provided is too weak.";
+        });
+      } else if (e.code == 'email-already-in-use') {
+        setState(() {
+          message = "The account already exists for that email.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        registeAttempt = false;
+        message = "connection problem";
+      });
 
-  setState(() {
-    registeAttempt=false;
-     message="connection problem";
-  });
-   
-  print(e);
-}
+      print(e);
+    }
   }
-  
+
+
 }

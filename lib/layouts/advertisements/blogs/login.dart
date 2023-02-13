@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/fade_animation.dart';
+import 'package:udom_timetable/layouts/advertisements/blogs/otp.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/register_page.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_create_blog.dart';
 
@@ -68,7 +69,10 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             Padding(
               padding: EdgeInsets.all(10),
-              child: Text(message,style: TextStyle(color: Colors.red),),
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.red),
+              ),
             ),
             Container(
                 margin: const EdgeInsets.only(top: 5),
@@ -185,7 +189,8 @@ class _LoginPageState extends State<LoginPage> {
                                         obscureText: true,
                                         autocorrect: false,
                                         enableSuggestions: false,
-                                        keyboardType: TextInputType.visiblePassword,
+                                        keyboardType:
+                                            TextInputType.visiblePassword,
                                         controller: password,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
@@ -226,10 +231,11 @@ class _LoginPageState extends State<LoginPage> {
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 10),
                                       child: TextFormField(
+                                        keyboardType: TextInputType.phone,
                                         controller: otp,
                                         maxLines: 1,
                                         decoration: const InputDecoration(
-                                          label: Text(" OTP ..."),
+                                          label: Text("Phone Number ..."),
                                           border: InputBorder.none,
                                         ),
                                       ),
@@ -245,17 +251,14 @@ class _LoginPageState extends State<LoginPage> {
                           2,
                           ElevatedButton(
                             onPressed: () async {
-                              var temp_username;
-                              var temp_pass;
                               setState(() {
-                                attempting=true;
-                                temp_username = username.text;
-                                temp_pass = password.text;
-                                username.text = '';
-                                password.text = '';
+                                attempting = true;
                               });
 
-                              signIn(temp_username, temp_pass);
+                              signIn(username.text, password.text, otp.text);
+                              otp.clear();
+                              username.clear();
+                              password.clear();
                             },
                             style: ElevatedButton.styleFrom(
                                 onPrimary: appbar,
@@ -309,63 +312,87 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   bool isEmailVerified = false;
-  void signIn(username, password) async {
+  void signIn(username, password, otp) async {
     if (username.toString().isNotEmpty && password.toString().isNotEmpty) {
       try {
         setState(() {
           attempting = true;
         });
         await FirebaseAuth.instance.currentUser?.reload();
-        if(FirebaseAuth.instance.currentUser!=null){
-       setState(() {
-          attempting=false;
-          isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
-        });
-        if (isEmailVerified) {
-          await FirebaseAuth.instance
-              .signInWithEmailAndPassword(email: username, password: password);
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => CreateBlog()));
+        if (FirebaseAuth.instance.currentUser != null) {
+          setState(() {
+            attempting = false;
+            isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+          });
+          if (isEmailVerified) {
+            if (!isPhone(otp)) {
+              await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  email: username, password: password);
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => OTP(
+                        phone: otp,
+                      )));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Check your phone Number again"),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
+          } else {
+            setState(() {
+              message = "Email not Verified";
+              attempting = false;
+            });
+          }
         } else {
           setState(() {
-            message = "Email not Verified";
-            attempting=false;
+            attempting = false;
+            message = '';
           });
+          if (!isPhone(otp)) {
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+                email: username, password: password);
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => OTP(
+                      phone: otp,
+                    )));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Check your phone Number again"),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
         }
-        }
-        else{
-          setState(() {
-          attempting=false;
-           message=''; 
-          });
-          await FirebaseAuth.instance
-              .signInWithEmailAndPassword(email: username, password: password);
-          Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (context) => CreateBlog()));
-       
-      }
-      setState(() {
-          attempting=false;
-      });
+        setState(() {
+          attempting = false;
+        });
       } on FirebaseAuthException catch (e) {
         setState(() {
-          attempting=false;
+          attempting = false;
         });
         if (e.code == 'user-not-found') {
           setState(() {
-             message = "No user found for that email.";
+            message = "No user found for that email.";
           });
-         
         } else if (e.code == 'wrong-password') {
           setState(() {
-              message = "wrong username or passsword";
+            message = "wrong username or passsword";
           });
-        
         }
       }
-    }
-    else{
-       attempting=false;
+    } else {
+      attempting = false;
     }
   }
+
+  bool isPhone(String? value) =>
+      value!.isEmpty ||
+      ((!value.toString().startsWith("0", 0) ||
+              value.toString().length != 10) &&
+          (!value.toString().startsWith("+255") ||
+              value.toString().length != 13));
 }
