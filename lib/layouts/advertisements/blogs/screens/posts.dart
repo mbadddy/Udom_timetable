@@ -1,6 +1,8 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:io';
 
+import "package:http/http.dart" as http;
 import 'package:checkmark/checkmark.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,16 +11,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import "package:http/http.dart" as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:platform_device_id/platform_device_id.dart';
+
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/animated/dialogbox.dart';
 
 class MyPosts extends StatefulWidget {
-  const MyPosts({super.key});
-
+  const MyPosts({
+    Key? key,
+    required this.uid,
+  }) : super(key: key);
+  final String uid;
   @override
   State<MyPosts> createState() => _MyPostsState();
 }
@@ -68,17 +73,15 @@ class _MyPostsState extends State<MyPosts> {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>>? myblogs;
-  late String uid;
   @override
   void initState() {
-    uid = FirebaseAuth.instance.currentUser!.uid;
     _AnimatedFlutterLogoState();
     super.initState();
     setState(() {
       myblogs = FirebaseFirestore.instance
           .collection('blogg')
           .orderBy("doc_id", descending: false)
-          .where("uid", isEqualTo: uid)
+          .where("uid", isEqualTo: widget.uid)
           .snapshots();
     });
     blog_images = Hive.box<Uint8List>("blogimages");
@@ -213,7 +216,7 @@ class _MyPostsState extends State<MyPosts> {
                             myblogs = FirebaseFirestore.instance
                                 .collection('blogg')
                                 .orderBy("uid")
-                                .where("uid", isEqualTo: uid)
+                                .where("uid", isEqualTo: widget.uid)
                                 .orderBy("viewers", descending: true)
                                 .snapshots();
                           });
@@ -221,7 +224,7 @@ class _MyPostsState extends State<MyPosts> {
                           setState(() {
                             myblogs = FirebaseFirestore.instance
                                 .collection('blogg')
-                                .where("uid", isEqualTo: uid)
+                                .where("uid", isEqualTo: widget.uid)
                                 .orderBy("created", descending: true)
                                 .snapshots();
                           });
@@ -229,7 +232,7 @@ class _MyPostsState extends State<MyPosts> {
                           setState(() {
                             myblogs = FirebaseFirestore.instance
                                 .collection('blogg')
-                                .where("uid", isEqualTo: uid)
+                                .where("uid", isEqualTo: widget.uid)
                                 .orderBy("title", descending: false)
                                 .snapshots();
                           });
@@ -237,7 +240,7 @@ class _MyPostsState extends State<MyPosts> {
                           setState(() {
                             myblogs = FirebaseFirestore.instance
                                 .collection('blogg')
-                                .where("uid", isEqualTo: uid)
+                                .where("uid", isEqualTo: widget.uid)
                                 .orderBy("author_name", descending: false)
                                 .snapshots();
                           });
@@ -245,7 +248,7 @@ class _MyPostsState extends State<MyPosts> {
                           setState(() {
                             myblogs = FirebaseFirestore.instance
                                 .collection('blogg')
-                                .where("uid", isEqualTo: uid)
+                                .where("uid", isEqualTo: widget.uid)
                                 .orderBy("date", descending: false)
                                 .snapshots();
                           });
@@ -472,139 +475,147 @@ class _MyPostsState extends State<MyPosts> {
                                         ),
                                       ),
                                       //
-                                      PopupMenuButton(
-                                        position: PopupMenuPosition.under,
-                                        onSelected: (value) async {
-                                          if (value == "delete") {
-                                            await animated_dialog_box
-                                                .showInOutDailog(
-                                                    title: Center(
-                                                        child: Text(
-                                                            "Hello")), // IF YOU WANT TO ADD
-                                                    context: context,
-                                                    firstButton: MaterialButton(
-                                                      // FIRST BUTTON IS REQUIRED
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(40),
-                                                      ),
-                                                      color: Colors.white,
-                                                      child: Text("cancel"),
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                    ),
-                                                    secondButton:
-                                                        MaterialButton(
-                                                      // OPTIONAL BUTTON
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(40),
-                                                      ),
-                                                      color: Colors.white,
-                                                      child: active == true
-                                                          ? CircularProgressIndicator()
-                                                          : Text(value),
-                                                      onPressed: () async {
-                                                        setState(() {
-                                                          active = true;
-                                                        });
+                                      Column(
+                                        children: [
+                                          Padding(padding: EdgeInsets.all(10),
+                                          child:blog['hide']? Text("hidden",style: TextStyle(color: Colors.red),)
+                                          :Text("active",style: TextStyle(color: Colors.green))
+                                          ),
+                                          PopupMenuButton(
+                                            position: PopupMenuPosition.under,
+                                            onSelected: (value) async {
+                                              if (value == "delete") {
+                                                await animated_dialog_box
+                                                    .showInOutDailog(
+                                                        title: Center(
+                                                            child: Text(
+                                                                "Hello")), // IF YOU WANT TO ADD
+                                                        context: context,
+                                                        firstButton: MaterialButton(
+                                                          // FIRST BUTTON IS REQUIRED
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(40),
+                                                          ),
+                                                          color: Colors.white,
+                                                          child: Text("cancel"),
+                                                          onPressed: () {
+                                                            Navigator.of(context)
+                                                                .pop();
+                                                          },
+                                                        ),
+                                                        secondButton:
+                                                            MaterialButton(
+                                                          // OPTIONAL BUTTON
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(40),
+                                                          ),
+                                                          color: Colors.white,
+                                                          child: active == true
+                                                              ? CircularProgressIndicator()
+                                                              : Text(value),
+                                                          onPressed: () async {
+                                                            setState(() {
+                                                              active = true;
+                                                            });
 
-                                                        deleteBlog(
-                                                            blog['doc_id']);
-                                                      },
-                                                    ),
-                                                    icon: Icon(
-                                                      Icons.info_outline,
-                                                      color: Colors.red,
-                                                    ), // IF YOU WANT TO ADD ICON
-                                                    yourWidget: Container(
-                                                      child: Text(
-                                                          'Are you sure !! you want to delete this post ??'),
-                                                    ));
-                                          } else if (value == "update") {
-                                            setState(() {
-                                              e_title.text = blog["title"];
-                                              e_body.text = blog["body"];
-                                              e_author.text =
-                                                  blog["author_name"];
-                                              e_date.text = blog["date"];
-                                              e_venue.text = blog["venue"];
-                                              blog_phot = blog["blog"];
-                                              user_phot = blog["user"];
-                                              doc_idd = blog["doc_id"];
-                                              viewers = blog["viewers"];
-                                            });
-                                            await animated_dialog_box
-                                                .showScaleUpdateAlertBox(
-                                                    context: context,
-                                                    firstButton: MaterialButton(
-                                                      // FIRST BUTTON IS REQUIRED
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(40),
-                                                      ),
-                                                      color: Colors.white,
-                                                      child: Text('cancel'),
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                    ),
-                                                    secondButton:
-                                                        MaterialButton(
-                                                      // OPTIONAL BUTTON
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(40),
-                                                      ),
-                                                      color: Colors.white,
-                                                      child: Text("next"),
-                                                      onPressed: () async {
-                                                        e_title.text =
-                                                            e_title.text;
-                                                        e_body.text =
-                                                            e_body.text;
-                                                        e_author.text =
-                                                            e_author.text;
-                                                        e_date.text =
-                                                            e_date.text;
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                        //
-                                                        editNextContext(
-                                                            blog["venue"],
-                                                            blog["blog"],
-                                                            blog["user"]);
-                                                        //
-                                                      },
-                                                    ),
-                                                    // IF YOU WANT TO ADD ICON
-                                                    yourWidget: editWidget(
-                                                        blog['title'],
-                                                        blog['body'],
-                                                        blog['author_name'],
-                                                        blog['date'],
-                                                        blog['venue']));
-                                          }
-                                          //
-                                        },
-                                        itemBuilder: (context) =>
-                                            options.map((String option) {
-                                          return PopupMenuItem<String>(
-                                            value: option,
-                                            child: Text(option),
-                                          );
-                                        }).toList(),
+                                                            deleteBlog(
+                                                                blog['doc_id']);
+                                                          },
+                                                        ),
+                                                        icon: Icon(
+                                                          Icons.info_outline,
+                                                          color: Colors.red,
+                                                        ), // IF YOU WANT TO ADD ICON
+                                                        yourWidget: Container(
+                                                          child: Text(
+                                                              'Are you sure !! you want to delete this post ??'),
+                                                        ));
+                                              } else if (value == "update") {
+                                                setState(() {
+                                                  e_title.text = blog["title"];
+                                                  e_body.text = blog["body"];
+                                                  e_author.text =
+                                                      blog["author_name"];
+                                                  e_date.text = blog["date"];
+                                                  e_venue.text = blog["venue"];
+                                                  blog_phot = blog["blog"];
+                                                  user_phot = blog["user"];
+                                                  doc_idd = blog["doc_id"];
+                                                  viewers = blog["viewers"];
+                                                });
+                                                await animated_dialog_box
+                                                    .showScaleUpdateAlertBox(
+                                                        context: context,
+                                                        firstButton: MaterialButton(
+                                                          // FIRST BUTTON IS REQUIRED
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(40),
+                                                          ),
+                                                          color: Colors.white,
+                                                          child: Text('cancel'),
+                                                          onPressed: () {
+                                                            Navigator.of(context)
+                                                                .pop();
+                                                          },
+                                                        ),
+                                                        secondButton:
+                                                            MaterialButton(
+                                                          // OPTIONAL BUTTON
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(40),
+                                                          ),
+                                                          color: Colors.white,
+                                                          child: Text("next"),
+                                                          onPressed: () async {
+                                                            e_title.text =
+                                                                e_title.text;
+                                                            e_body.text =
+                                                                e_body.text;
+                                                            e_author.text =
+                                                                e_author.text;
+                                                            e_date.text =
+                                                                e_date.text;
+                                                            Navigator.of(context)
+                                                                .pop();
+                                                            //
+                                                            editNextContext(
+                                                                blog["venue"],
+                                                                blog["blog"],
+                                                                blog["user"]);
+                                                            //
+                                                          },
+                                                        ),
+                                                        // IF YOU WANT TO ADD ICON
+                                                        yourWidget: editWidget(
+                                                            blog['title'],
+                                                            blog['body'],
+                                                            blog['author_name'],
+                                                            blog['date'],
+                                                            blog['venue']));
+                                              }
+                                              //
+                                            },
+                                            itemBuilder: (context) =>
+                                                options.map((String option) {
+                                              return PopupMenuItem<String>(
+                                                value: option,
+                                                child: Text(option),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ],
                                       )
                                     ],
                                   ),
@@ -720,7 +731,7 @@ class _MyPostsState extends State<MyPosts> {
         setState(() {
           myblogs = FirebaseFirestore.instance
               .collection('blogg')
-              .where("uid", isEqualTo: uid)
+              .where("uid", isEqualTo: widget.uid)
               .snapshots();
           active = false;
         });
@@ -799,7 +810,7 @@ class _MyPostsState extends State<MyPosts> {
           blog_images = Hive.box<Uint8List>("blogimages");
           myblogs = FirebaseFirestore.instance
               .collection('blogg')
-              .where("uid", isEqualTo: uid)
+              .where("uid", isEqualTo: widget.uid)
               .snapshots();
         });
         setState(() {
@@ -1251,7 +1262,7 @@ class _MyPostsState extends State<MyPosts> {
       String userurl = await ref2.getDownloadURL();
       final json = {
         'doc_id': doc_idd,
-        'uid': uid,
+        'uid': widget.uid,
         'author_name': e_author.text,
         "title": e_title.text,
         "body": e_body.text,
@@ -1268,7 +1279,7 @@ class _MyPostsState extends State<MyPosts> {
       setState(() {
         myblogs = FirebaseFirestore.instance
             .collection('blogg')
-            .where("uid", isEqualTo: uid)
+            .where("uid", isEqualTo: widget.uid)
             .snapshots();
       });
 

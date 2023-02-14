@@ -75,6 +75,7 @@ dependencies:
   image_size_getter: ^2.1.2
   pin_code_fields: ^7.4.0
   supercharged: ^2.1.1
+  flip_card: ^0.7.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -131,6 +132,7 @@ flutter:
     - assets/images/no_favourate.jpg
     - assets/images/more.jpg
     - assets/images/oops.png
+    - assets/images/admin.jpg
    
   # To add assets to your application, add an assets section, like this:
   # assets:

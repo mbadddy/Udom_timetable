@@ -24,12 +24,14 @@ class _HomeScreenState extends State<HomeScreen> {
     myblogs = FirebaseFirestore.instance
         .collection('blogg')
         .orderBy("created", descending: true)
+         .where("hide",isEqualTo: false)
         .limit(10)
         .snapshots();
 
     pop_blogs = FirebaseFirestore.instance
         .collection('blogg')
         .orderBy("viewers", descending: true)
+        .where("hide",isEqualTo: false)
         .limit(10)
         .snapshots();
     super.initState();

@@ -1,38 +1,34 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as storage;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class CreateBlogg {
-  Future<bool> create(title, author, body, venue, date, author_photo,
+  Future<bool> create(uid, title, author, body, venue, date, author_photo,
       blog_photo, List<String>? deleted, BuildContext context) async {
     try {
       bool returned;
-      final uid = FirebaseAuth.instance.currentUser!.uid;
-      int entryNum = await countEntriesInZoneWard(uid) + 1;
-      
-        CollectionReference reff =
-            FirebaseFirestore.instance.collection("blogg");
-        reff.get().then((value)async {
-          List<Map<dynamic, dynamic>>? list = [];
-          list = value.docs.map((doc) => doc.data()).cast<Map>().toList();
-            
-          for(var doc in list){
-              
-                if(doc["doc_id"]==entryNum){
-                 entryNum++;
-                }
-          }
-          returned = await postData(entryNum, uid, title, body, date, venue,
-              context, author, author_photo, blog_photo);
-          print("it extists...imaadd $entryNum...............");
 
-          return returned;
-        });
-    
+      int entryNum = await countEntriesInZoneWard(uid) + 1;
+
+      CollectionReference reff = FirebaseFirestore.instance.collection("blogg");
+      reff.get().then((value) async {
+        List<Map<dynamic, dynamic>>? list = [];
+        list = value.docs.map((doc) => doc.data()).cast<Map>().toList();
+
+        for (var doc in list) {
+          if (doc["doc_id"] == entryNum) {
+            entryNum++;
+          }
+        }
+        returned = await postData(entryNum, uid, title, body, date, venue,
+            context, author, author_photo, blog_photo);
+        print("it extists...imaadd $entryNum...............");
+
+        return returned;
+      });
 
       return true;
     } catch (e) {
@@ -91,7 +87,8 @@ class CreateBlogg {
       "blog": blogurl,
       "user": userurl,
       "created": created,
-      "viewers": 0
+      "viewers": 0,
+      "hide": false
     };
     firebase.set(json);
 

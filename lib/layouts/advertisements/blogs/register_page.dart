@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/verifyemail.dart';
@@ -209,6 +210,15 @@ class _RegisterPageState extends State<RegisterPage> {
         email: emailAddress,
         password: password,
       );
+      var data={
+        "phone":phone,
+        "email":emailAddress,
+         "active":false,
+         "uid":""
+      };
+        final firebase =
+        FirebaseFirestore.instance.collection("users").doc("$emailAddress");
+        firebase.set(data);
       Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => VerifyEmail(
           email: emailAddress, phone: phone,

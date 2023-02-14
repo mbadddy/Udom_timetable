@@ -75,7 +75,7 @@ class _AllPostsState extends State<AllPosts> {
   }
 
   late Stream<QuerySnapshot<Map<String, dynamic>>> allblogs;
-  CollectionReference blogs = FirebaseFirestore.instance.collection('blogg');
+
   @override
   void initState() {
     blog_images = Hive.box<Uint8List>("blogimages");
@@ -84,11 +84,13 @@ class _AllPostsState extends State<AllPosts> {
       allblogs = FirebaseFirestore.instance
           .collection('blogg')
           .orderBy("viewers", descending: true)
+           .where("hide",isEqualTo: false)
           .snapshots();
     } else {
       allblogs = FirebaseFirestore.instance
           .collection('blogg')
           .orderBy("created", descending: true)
+           .where("hide",isEqualTo: false)
           .limit(10)
           .snapshots();
     }

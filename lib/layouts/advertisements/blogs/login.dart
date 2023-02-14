@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
+import 'package:udom_timetable/layouts/admin/container.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/fade_animation.dart';
+import 'package:udom_timetable/layouts/advertisements/blogs/info.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/otp.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/register_page.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_create_blog.dart';
@@ -326,12 +329,39 @@ class _LoginPageState extends State<LoginPage> {
           });
           if (isEmailVerified) {
             if (!isPhone(otp)) {
-              await FirebaseAuth.instance.signInWithEmailAndPassword(
-                  email: username, password: password);
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => OTP(
-                        phone: otp,
-                      )));
+               if (username == "fredrickbrighton@gmail.com") {
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: username, password: password);
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => AdminContainer()));
+                }
+                else{
+       DocumentReference refff = FirebaseFirestore.instance
+                  .collection("users")
+                  .doc("${username}");
+              bool activeness = await refff.get().then(
+                (DocumentSnapshot value) {
+                  return value.get("active");
+                },
+              );
+              if (activeness) {
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: username, password: password);
+                String useremail =
+                    await FirebaseAuth.instance.currentUser!.email.toString();
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => OTP(
+                            phone: otp,
+                            email: useremail,
+                          )));
+
+
+              } else {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Information(),
+                ));
+              }
+                }
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -352,12 +382,40 @@ class _LoginPageState extends State<LoginPage> {
             message = '';
           });
           if (!isPhone(otp)) {
-            await FirebaseAuth.instance.signInWithEmailAndPassword(
-                email: username, password: password);
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => OTP(
-                      phone: otp,
-                    )));
+             if (username == "fredrickbrighton@gmail.com") {
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: username, password: password);
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => AdminContainer()));
+                }
+                else{
+       DocumentReference refff = FirebaseFirestore.instance
+                  .collection("users")
+                  .doc("${username}");
+              bool activeness = await refff.get().then(
+                (DocumentSnapshot value) {
+                  return value.get("active");
+                },
+              );
+              if (activeness) {
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: username, password: password);
+                String useremail =
+                    await FirebaseAuth.instance.currentUser!.email.toString();
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => OTP(
+                            phone: otp,
+                            email: useremail,
+                          )));
+
+
+              } else {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Information(),
+                ));
+              }
+                }
+      
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

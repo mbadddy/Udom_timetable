@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
 import 'package:date_time_picker/date_time_picker.dart';
@@ -7,13 +8,17 @@ import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/posts.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/services/create_blog.dart';
 
 class CreateBlog extends StatefulWidget {
-  const CreateBlog({Key? key}) : super(key: key);
-
+  const CreateBlog({
+    Key? key,
+    required this.uid,
+  }) : super(key: key);
+  final String uid;
   @override
   State<CreateBlog> createState() => _CreateBlogState();
 }
@@ -113,6 +118,7 @@ class _CreateBlogState extends State<CreateBlog> {
                 try {
                   await FirebaseAuth.instance.signOut();
                   Navigator.pop(context);
+                  Navigator.pop(context);
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -129,12 +135,14 @@ class _CreateBlogState extends State<CreateBlog> {
             position: PopupMenuPosition.under,
             onSelected: (value) {
               if (value == 'my posts') {
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => MyPosts()));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => MyPosts(
+                          uid: widget.uid,
+                        )));
               }
             },
             itemBuilder: (context) => options.map((String option) {
-              return PopupMenuItem<String>( 
+              return PopupMenuItem<String>(
                 value: option,
                 child: Text(option),
               );
@@ -382,8 +390,7 @@ class _CreateBlogState extends State<CreateBlog> {
                                 executed = true;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text(
-                                        'Incorrect date!.'),
+                                    content: Text('Incorrect date!.'),
                                     duration: Duration(milliseconds: 1500),
                                     width: 280.0,
                                     behavior: SnackBarBehavior.floating,
@@ -408,6 +415,7 @@ class _CreateBlogState extends State<CreateBlog> {
                               });
                             } else {
                               bool answer = await CreateBlogg().create(
+                                  widget.uid,
                                   titleController.text,
                                   authorController.text,
                                   bodyController.text,
@@ -437,7 +445,8 @@ class _CreateBlogState extends State<CreateBlog> {
                               executed = true;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('all fields are required!. otherwise re-enter your date'),
+                                  content: Text(
+                                      'all fields are required!. otherwise re-enter your date'),
                                   duration: Duration(milliseconds: 1500),
                                   width: 280.0,
                                   behavior: SnackBarBehavior.floating,

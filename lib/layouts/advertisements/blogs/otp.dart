@@ -1,22 +1,24 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-
 import 'package:udom_timetable/layouts/Screens/Colors/colors.dart';
 import 'package:udom_timetable/layouts/advertisements/animated/fadeanimations.dart';
-import 'package:udom_timetable/layouts/advertisements/animated/hexcolors.dart';
+import 'package:udom_timetable/layouts/advertisements/blogs/info.dart';
 import 'package:udom_timetable/layouts/advertisements/blogs/screens/blog_create_blog.dart';
 
 class OTP extends StatefulWidget {
   final String phone;
+  final String email;
   const OTP({
     Key? key,
     required this.phone,
+    required this.email,
   }) : super(key: key);
 
   @override
@@ -54,6 +56,8 @@ class _OTPState extends State<OTP> {
       SnackBar(
         content: Text(message!),
         duration: const Duration(seconds: 2),
+          width: 280.0,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -61,17 +65,16 @@ class _OTPState extends State<OTP> {
   @override
   Widget build(BuildContext context) {
     Color appbar = appColr;
-    Color appbar2 = appColr2;
     Color log_page = Colors.white;
     Color log_txt = Colors.black87;
     Color input = Colors.white;
 
     final ThemeData mode = Theme.of(context);
+
     var whichMode = mode.brightness;
     if (whichMode == Brightness.dark) {
       setState(() {
         appbar = Colors.black12;
-        appbar2 = Colors.black38;
         log_page = Colors.black26;
         log_txt = Colors.white;
         input = Colors.black54;
@@ -99,14 +102,6 @@ class _OTPState extends State<OTP> {
               input,
             ],
           ),
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                HexColor("#fff").withOpacity(0.2), BlendMode.dstATop),
-            image: const NetworkImage(
-              'https://mir-s3-cdn-cf.behance.net/project_modules/fs/01b4bd84253993.5d56acc35e143.jpg',
-            ),
-          ),
         ),
         child: Center(
           child: SingleChildScrollView(
@@ -114,14 +109,12 @@ class _OTPState extends State<OTP> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Card(
-                  elevation: 1,
-                  color:
-                      const Color.fromARGB(255, 171, 211, 250).withOpacity(0.4),
+                  elevation: 8,
                   child: Container(
                     width: 500,
                     padding: const EdgeInsets.all(30.0),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(40),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -142,9 +135,7 @@ class _OTPState extends State<OTP> {
                           child: Container(
                             child: Text(
                               "Let us help you",
-                              style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  letterSpacing: 0.5),
+                              style: TextStyle(letterSpacing: 0.5),
                             ),
                           ),
                         ),
@@ -178,16 +169,8 @@ class _OTPState extends State<OTP> {
                               horizontal: 30.0, vertical: 8),
                           child: RichText(
                             text: TextSpan(
-                                text: "Enter the code receive from ",
-                                children: [
-                                  TextSpan(
-                                      text: "Administrator",
-                                      style: TextStyle(
-                                          color: log_txt,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15)),
-                                ],
-                                style: TextStyle(color: log_txt, fontSize: 15)),
+                                text: "Enter the received code via sms ",
+                                style: TextStyle(fontSize: 15)),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -243,9 +226,6 @@ class _OTPState extends State<OTP> {
                             onCompleted: (v) {
                               debugPrint("Completed");
                             },
-                            // onTap: () {
-                            //   print("Pressed");
-                            // },
                             onChanged: (value) {
                               debugPrint(value);
                               setState(() {
@@ -253,9 +233,6 @@ class _OTPState extends State<OTP> {
                               });
                             },
                             beforeTextPaste: (text) {
-                              debugPrint("Allowing to paste $text");
-                              //if you return true then it will show the paste confirmation dialog. Otherwise if false, then nothing will happen.
-                              //but you can show anything you want here, like your pop up saying wrong paste format or etc
                               return true;
                             },
                           ),
@@ -311,7 +288,7 @@ class _OTPState extends State<OTP> {
                                       .shake); // Triggering error shake animation
                                   setState(() => hasError = true);
                                 } else {
-                                    snackBar("OTP veriry!!");
+                                  snackBar("Verifying OTP!!");
                                   verifyOTP(currentText);
                                 }
                               },
@@ -351,7 +328,6 @@ class _OTPState extends State<OTP> {
                     children: [
                       Text("Want to try again? ",
                           style: TextStyle(
-                            color: appbar,
                             letterSpacing: 0.5,
                           )),
                       GestureDetector(
@@ -378,7 +354,7 @@ class _OTPState extends State<OTP> {
                         },
                         child: Text("Sing in",
                             style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.blue.withOpacity(0.9),
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,
                                 fontSize: 14)),
@@ -393,39 +369,45 @@ class _OTPState extends State<OTP> {
       ),
     );
   }
-   bool isPhone(String? value) =>value.toString().startsWith("+255",0);
- String myPhone(String? value) =>
-      value.toString().replaceAll(value.toString().substring(0,1), "+255").toString();
-  String checkPhone(phone){
-    String myphone="";
-       if(!isPhone(phone)){
-       myphone=myPhone(phone);
-       print("inareplaciwa");
-       return myphone;
-     }
-     return phone;
+
+  bool isPhone(String? value) => value.toString().startsWith("+255", 0);
+  String myPhone(String? value) => value
+      .toString()
+      .replaceAll(value.toString().substring(0, 1), "+255")
+      .toString();
+  String checkPhone(phone) {
+    String myphone = "";
+    if (!isPhone(phone)) {
+      myphone = myPhone(phone);
+      return myphone;
+    }
+    return phone;
   }
+
   void sendOTP(String phone) async {
-    phone=checkPhone(phone);
+    phone = checkPhone(phone);
     await FirebaseAuth.instance.verifyPhoneNumber(
-      timeout: Duration(seconds:10),
+      timeout: Duration(seconds: 20),
       phoneNumber: '$phone',
       verificationCompleted: (PhoneAuthCredential credential) {
-              snackBar("Account is successfully verified $phone");
+        snackBar("Account is successfully verified");
       },
       verificationFailed: (FirebaseAuthException e) {
         if (e.code == 'invalid-phone-number') {
-              snackBar("The provided phone number is not valid. $phone");
+          snackBar("The provided phone number is not valid. $phone");
+        } else if (e.code == 'too-many-requests') {
+          snackBar("Too many requests.. Please try again later");
         }
-         snackBar("otp send failed.....${e.code}");
-        
+        snackBar("otp send failed.....${e.code}");
       },
       codeSent: (String verificationId, int? resendToken) {
         otp_credential!.put("myotp", "$verificationId");
         otp_credential!.get("myotp");
-          snackBar("Verification code is successfully sent to $phone....");
+        snackBar("Verification code is successfully sent to $phone....");
       },
-      codeAutoRetrievalTimeout: (String verificationId) {},
+      codeAutoRetrievalTimeout: (String verificationId) {
+         snackBar("Server timed out while send sms to $phone....");
+      },
     );
   }
 
@@ -434,22 +416,34 @@ class _OTPState extends State<OTP> {
       if (otp_credential!.get("myotp") != null) {
         // sendOTP(widget.phone);
         FirebaseAuth auth = FirebaseAuth.instance;
+
         PhoneAuthCredential credential = PhoneAuthProvider.credential(
-            verificationId: otp_credential!.get("myotp")!, smsCode: currentText);
+            verificationId: otp_credential!.get("myotp")!,
+            smsCode: currentText);
         await auth.signInWithCredential(credential);
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateBlog(),));
+        String uid = await auth.currentUser!.uid;
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => CreateBlog(
+              uid: uid,
+            ),
+          ));
+       
+        DocumentReference ref =
+            FirebaseFirestore.instance.collection("users").doc("${widget.email}");
+        final data = {"uid": uid};
+        ref.update(data);
+        await auth.signOut();
         setState(
           () {
             hasError = false;
             snackBar("OTP Verified!!");
           },
         );
-      }
-      else{
+      } else {
         sendOTP(widget.phone);
       }
     } catch (e) {
-         snackBar("OTP is incorrect!!");
+      snackBar("OTP expired!! please Resend to get new one..");
     }
   }
 }
