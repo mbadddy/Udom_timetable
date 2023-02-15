@@ -19,7 +19,7 @@ class NotificationService{
 
   // #3
   await _localNotificationsPlugin.initialize(initSettings,onSelectNotification: onselectedNotification).then((_) {
-     print('setupPlugin: setup success');
+     print('setupPlugin: setup success....................................................');
   }).catchError((Object error) {
       print('Error: $error');
   });
@@ -45,14 +45,16 @@ var soundFile = sound.replaceAll('.mp3', '');
 final notificationSound =
     sound == '' ? null : RawResourceAndroidNotificationSound(soundFile);
 final androidDetail = AndroidNotificationDetails(
+  
+
   '0', // channel Id
   channename ,
   channelDescription: "description",
   importance: Importance.max,
   playSound: true,
   sound:notificationSound ,
-  colorized: true,
-  color: Colors.transparent// channel Name
+  priority: Priority.high,
+  
 );
 
 // final iosDetail ==sound=='' ?null: IOSNotificationDetails();

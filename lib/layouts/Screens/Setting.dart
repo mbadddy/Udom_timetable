@@ -184,36 +184,6 @@ if(whichMode==Brightness.dark){
         const Divider(),
         Column(
       children: [
-       
-
-                Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Notification',
-                style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.045,
-                ),
-              ),
-              ValueBuilder<bool?>(
-                initialValue: false,
-                builder: (isChecked, updateFn) => Switch(
-                  value: isChecked!,
-                  onChanged: (value) { 
-                    
-                
-                  },
-                  activeTrackColor: mainColor.withOpacity(0.4),
-                  activeColor: mainColor,
-                ),
-              ),
-            ],
-          ),
-          
-        ),
-           const Divider(),
 
                 Container(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),

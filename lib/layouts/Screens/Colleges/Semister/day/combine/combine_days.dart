@@ -247,11 +247,17 @@ class _CombinedDaysState extends State<CombinedDays> {
                           course.value == null ||
                           time_t.value == null ||
                           venue.value == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("All Fields Are Required")));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("All Fields Are Required"),
+                          width: 280.0,
+                          behavior: SnackBarBehavior.floating,
+                        ));
                       } else if (actual_to < actual_from) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Time Error")));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Time Error"),
+                          width: 280.0,
+                          behavior: SnackBarBehavior.floating,
+                        ));
                       } else {
                         if (combinebox!.get('days') == null) {
                           days.add(day);
@@ -393,7 +399,10 @@ class _CombinedDaysState extends State<CombinedDays> {
                         venue.value = null;
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text("Combine Saved Successfully")));
+                          content: Text("Combine Saved Successfully"),
+                          width: 280.0,
+                          behavior: SnackBarBehavior.floating,
+                        ));
                         Navigator.pop(context);
                         display(coll, programe, coz.toString(), year, sem,
                             lec.toString(), ven.toString(), ty.toString(), day);
@@ -419,88 +428,93 @@ class _CombinedDaysState extends State<CombinedDays> {
         color: Colors.white,
         child: Text('Delete'),
         onPressed: () {
-              if (combinebox!.get("colleges") != null) {
-                      List<String>? collegee = combinebox!.get("colleges");
-                      for (var x = 0; x < collegee!.length; x++) {
-                        if (collegee[x] == coll) {
-                          collegee.removeWhere((element) => element == coll);
-                          print("remove ${coll}");
-                          combinebox!.put('colleges', collegee);
-                        }
-                      }
-                      List<String>? program = combinebox!.get("programmes");
-                      for (var x = 0; x < program!.length; x++) {
-                        if (program[x] == prog) {
-                          program.removeWhere((element) => element == prog);
-                          print("remove ${prog}");
-                          combinebox!.put('programmes', program);
-                        }
-                      }
-                      List<String>? yrs = combinebox!.get("years");
-                      for (var x = 0; x < yrs!.length; x++) {
-                        if (yrs[x] == year) {
-                          yrs.removeWhere((element) => element == year);
-                          print("remove ${year}");
-                          combinebox!.put('years', yrs);
-                        }
-                      }
-                      List<String>? semm = combinebox!.get("semisters");
-                      for (var x = 0; x < semm!.length; x++) {
-                        if (semm[x] == sem) {
-                          semm.removeWhere((element) => element == sem);
-                          print("remove ${sem}");
-                          combinebox!.put('semisters', semm);
-                        }
-                      }
-                      List<String>? cozes = combinebox!.get("courses");
-                      for (var x = 0; x < cozes!.length; x++) {
-                        if (cozes[x] == course) {
-                          cozes.removeWhere((element) => element == course);
-                          print("remove ${course}");
-                          combinebox!.put('courses', cozes);
-                        }
-                      }
-                      List<String>? tymes = combinebox!.get("time_to");
-                      for (var x = 0; x < tymes!.length; x++) {
-                        if (tymes[x] == time_to) {
-                          tymes.removeWhere((element) => element == time_to);
-                          print("remove ${time_to}");
-                          combinebox!.put('time_to', tymes);
-                        }
-                      }
-                      List<String>? lectureee = combinebox!.get("time_from");
-                      for (var x = 0; x < lectureee!.length; x++) {
-                        if (lectureee[x] == time_from) {
-                          lectureee
-                              .removeWhere((element) => element == time_from);
-                          print("remove ${time_from}");
-                          combinebox!.put('time_from', lectureee);
-                        }
-                      }
-                      List<String>? venyus = combinebox!.get("venues");
-                      for (var x = 0; x < venyus!.length; x++) {
-                        if (venyus[x] == venue) {
-                          venyus.removeWhere((element) => element == venue);
-                          print("remove ${venue}");
-                          combinebox!.put('venues', venyus);
-                        }
-                      }
-                      List<String>? deys = combinebox!.get("days");
-                      for (var x = 0; x < deys!.length; x++) {
-                        if (deys[x] == day) {
-                          deys.removeWhere((element) => element == day);
-                          print("remove ${day}");
-                          combinebox!.put('days', deys);
-                        }
-                      }
+          if (combinebox!.get("colleges") != null) {
+            List<String>? collegee = combinebox!.get("colleges");
+            for (var x = 0; x < collegee!.length; x++) {
+              if (collegee[x] == coll) {
+                collegee.removeWhere((element) => element == coll);
+                print("remove ${coll}");
+                combinebox!.put('colleges', collegee);
+              }
+            }
+            List<String>? program = combinebox!.get("programmes");
+            for (var x = 0; x < program!.length; x++) {
+              if (program[x] == prog) {
+                program.removeWhere((element) => element == prog);
+                print("remove ${prog}");
+                combinebox!.put('programmes', program);
+              }
+            }
+            List<String>? yrs = combinebox!.get("years");
+            for (var x = 0; x < yrs!.length; x++) {
+              if (yrs[x] == year) {
+                yrs.removeWhere((element) => element == year);
+                print("remove ${year}");
+                combinebox!.put('years', yrs);
+              }
+            }
+            List<String>? semm = combinebox!.get("semisters");
+            for (var x = 0; x < semm!.length; x++) {
+              if (semm[x] == sem) {
+                semm.removeWhere((element) => element == sem);
+                print("remove ${sem}");
+                combinebox!.put('semisters', semm);
+              }
+            }
+            List<String>? cozes = combinebox!.get("courses");
+            for (var x = 0; x < cozes!.length; x++) {
+              if (cozes[x] == course) {
+                cozes.removeWhere((element) => element == course);
+                print("remove ${course}");
+                combinebox!.put('courses', cozes);
+              }
+            }
+            List<String>? tymes = combinebox!.get("time_to");
+            for (var x = 0; x < tymes!.length; x++) {
+              if (tymes[x] == time_to) {
+                tymes.removeWhere((element) => element == time_to);
+                print("remove ${time_to}");
+                combinebox!.put('time_to', tymes);
+              }
+            }
+            List<String>? lectureee = combinebox!.get("time_from");
+            for (var x = 0; x < lectureee!.length; x++) {
+              if (lectureee[x] == time_from) {
+                lectureee.removeWhere((element) => element == time_from);
+                print("remove ${time_from}");
+                combinebox!.put('time_from', lectureee);
+              }
+            }
+            List<String>? venyus = combinebox!.get("venues");
+            for (var x = 0; x < venyus!.length; x++) {
+              if (venyus[x] == venue) {
+                venyus.removeWhere((element) => element == venue);
+                print("remove ${venue}");
+                combinebox!.put('venues', venyus);
+              }
+            }
+            List<String>? deys = combinebox!.get("days");
+            for (var x = 0; x < deys!.length; x++) {
+              if (deys[x] == day) {
+                deys.removeWhere((element) => element == day);
+                print("remove ${day}");
+                combinebox!.put('days', deys);
+              }
+            }
 
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("Combine Deleted Successfully")));
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("No data Found To Delete")));
-                    }
-                    Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Combine Deleted Successfully"),
+              width: 280.0,
+              behavior: SnackBarBehavior.floating,
+            ));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("No data Found To Delete"),
+              width: 280.0,
+              behavior: SnackBarBehavior.floating,
+            ));
+          }
+          Navigator.pop(context);
         },
       ),
       firstButton: MaterialButton(
@@ -530,7 +544,6 @@ class _CombinedDaysState extends State<CombinedDays> {
           Text("Time To: ${time_to}"),
           Text("Time From: ${time_from}"),
           Text("Venue: ${venue}"),
-          
         ],
       ),
     );

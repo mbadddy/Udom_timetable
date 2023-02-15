@@ -167,12 +167,8 @@ class _OTPState extends State<OTP> {
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 30.0, vertical: 8),
-                          child: RichText(
-                            text: TextSpan(
-                                text: "Enter the received code via sms ",
-                                style: TextStyle(fontSize: 15)),
-                            textAlign: TextAlign.center,
-                          ),
+                          child: Text("Enter the received code via sms ",
+                                style: TextStyle(fontSize: 15))
                         ),
                         const SizedBox(
                           height: 20,
@@ -352,7 +348,7 @@ class _OTPState extends State<OTP> {
                           //   return LoginScreen();
                           // }));
                         },
-                        child: Text("Sing in",
+                        child: Text("Sign in",
                             style: TextStyle(
                                 color: Colors.blue.withOpacity(0.9),
                                 fontWeight: FontWeight.bold,
@@ -407,6 +403,7 @@ class _OTPState extends State<OTP> {
       },
       codeAutoRetrievalTimeout: (String verificationId) {
          snackBar("Server timed out while send sms to $phone....");
+           snackBar("Sorry! try again later");
       },
     );
   }

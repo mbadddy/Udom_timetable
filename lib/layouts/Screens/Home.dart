@@ -22,6 +22,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  //notifications page
+  //emd
   PageController? _pageController;
   Timer? _pageAnimationTimer;
   int _page = 0;

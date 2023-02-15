@@ -1,3 +1,4 @@
 {
-    "jupyter.sendSelectionToInteractiveWindow": true
+    "jupyter.sendSelectionToInteractiveWindow": true,
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

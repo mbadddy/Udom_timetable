@@ -478,8 +478,8 @@ class _MyPostsState extends State<MyPosts> {
                                       Column(
                                         children: [
                                           Padding(padding: EdgeInsets.all(10),
-                                          child:blog['hide']? Text("hidden",style: TextStyle(color: Colors.red),)
-                                          :Text("active",style: TextStyle(color: Colors.green))
+                                          child:blog['hide']? Icon(Icons.hide_source,color: Colors.red,)
+                                          :Icon(Icons.check,color: Colors.green,)
                                           ),
                                           PopupMenuButton(
                                             position: PopupMenuPosition.under,
