@@ -1271,10 +1271,9 @@ class _MyPostsState extends State<MyPosts> {
         "blog": u_blog_image != null ? blogurl : blog_phot,
         "user": u_user_image != null ? userurl : user_phot,
         "created": created,
-        "viewers": 0
       };
       print("apaaa.3..");
-      firebase.set(json);
+      firebase.update(json);
       Navigator.of(context).pop();
       setState(() {
         myblogs = FirebaseFirestore.instance
